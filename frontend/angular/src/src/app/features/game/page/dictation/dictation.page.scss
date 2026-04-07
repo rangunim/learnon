@@ -1,0 +1,24 @@
+.dict-card-panel {
+    border-radius: 1.5rem;
+    box-shadow: var(--p-card-shadow);
+    border: 1px solid var(--p-surface-border);
+    background: var(--p-surface-card);
+}
+
+.dict-title {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: var(--p-text-color);
+}
+
+.dict-subtitle {
+    color: var(--p-text-muted-color);
+    font-size: 1.125rem;
+}
+
+.dict-empty {
+    background: var(--p-surface-ground);
+    border-radius: 1rem;
+    border: 2px dashed var(--p-surface-border);
+    color: var(--p-text-muted-color);
+}

@@ -1,0 +1,83 @@
+<p-dialog [visible]="true" (visibleChange)="onClose.emit()" header="Publiczny Marketplace" [modal]="true"
+    [style]="{width: '90vw', maxWidth: '1200px'}" [draggable]="false" [resizable]="false"
+    styleClass="marketplace-dialog-container" (onShow)="onDialogShow()">
+
+    @let vm = viewModel();
+
+    <div class="marketplace-search-section p-6">
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
+            <div class="flex flex-1 gap-2 items-center w-full">
+                <p-select [options]="searchFields" [ngModel]="vm.state.searchField"
+                    (ngModelChange)="handleSearchFieldChange($event)" class="w-48" placeholder="Szukaj po...">
+                </p-select>
+
+                <div class="relative flex-1 flex items-center">
+                    <i class="pi pi-search absolute left-4 z-10 text-muted-color"></i>
+                    <input pInputText type="text" placeholder="Wyszukaj..." class="w-full"
+                        style="padding-left: 3rem !important" #searchInput [value]="vm.state.searchQuery"
+                        (input)="handleSearch(searchInput.value)" />
+                </div>
+            </div>
+            <p-button label="Odśwież" icon="pi pi-refresh" styleClass="p-button-text" (onClick)="refresh()">
+            </p-button>
+        </div>
+    </div>
+
+    <div class="marketplace-grid-section p-6 relative">
+        @if (vm.state.isLoading) {
+        <div class="loading-overlay absolute inset-0 flex items-center justify-center z-10">
+            <p-progressspinner />
+        </div>
+        }
+
+        @if (vm.hasChapters) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @for (card of vm.chapterCards; track card.chapter.id) {
+            <app-public-chapter-card [viewModel]="card" (onImport)="handleImport($event)"
+                (onPreview)="handlePreview($event)">
+            </app-public-chapter-card>
+            }
+        </div>
+        } @else if (!vm.state.isLoading) {
+        <div class="empty-state flex flex-col items-center justify-center py-20">
+            <i class="pi pi-search-minus empty-state-icon mb-4"></i>
+            <p class="empty-state-title">Brak publicznych rozdziałów</p>
+            <p class="empty-state-text">Spróbuj zmienić zapytanie.</p>
+        </div>
+        }
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Zamknij" icon="pi pi-times" (onClick)="onClose.emit()" styleClass="p-button-text"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [header]="'Podgląd: ' + vm.state.selectedChapterForPreview?.name" [(visible)]="vm.state.isPreviewVisible"
+    (onHide)="closePreview()" [modal]="true" [style]="{width: '50vw', minWidth: '300px'}" [draggable]="false"
+    [resizable]="false">
+
+    @if (vm.state.selectedChapterForPreview) {
+    <div class="preview-content max-h-[60vh] overflow-y-auto pr-2">
+        <div class="preview-header flex justify-between items-center px-3 py-2 mb-2">
+            <span>{{ vm.state.selectedChapterForPreview.lang1 || 'Język 1' }}</span>
+            <span>{{ vm.state.selectedChapterForPreview.lang2 || 'Język 2' }}</span>
+        </div>
+        <div class="flex flex-col gap-2">
+            @for (word of vm.state.selectedChapterForPreview.words; track $index) {
+            <div class="preview-item flex justify-between items-center p-3">
+                <span class="word-pl">{{ word.pl }}</span>
+                <span class="word-eng">{{ word.eng }}</span>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <p-button label="Zamknij" (onClick)="closePreview()" styleClass="p-button-text"></p-button>
+        <p-button label="Importuj ten rozdział" icon="pi pi-download"
+            [disabled]="vm.state.selectedChapterForPreview?.userId === vm.currentUserId"
+            [pTooltip]="vm.state.selectedChapterForPreview?.userId === vm.currentUserId ? 'Nie możesz zaimportować własnego rozdziału' : ''"
+            (onClick)="handleImport(vm.state.selectedChapterForPreview!)"></p-button>
+    </ng-template>
+</p-dialog>

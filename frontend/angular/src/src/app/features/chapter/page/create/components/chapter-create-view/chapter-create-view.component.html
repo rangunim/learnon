@@ -1,0 +1,114 @@
+<div class="max-w-4xl mx-auto pb-20">
+    <div class="mb-6">
+        <p-button (click)="onCancel.emit()" [label]="'Powrót'" [icon]="'pi pi-arrow-left'" [text]="true"
+            [severity]="'secondary'" [size]="'small'" />
+    </div>
+
+    <p-card>
+        <h1 class="create-title mb-2">Nowy rozdział</h1>
+        <p class="create-subtitle mb-8">Stwórz nową kolekcję fiszek.</p>
+
+        @let vm = viewModel();
+        <form [formGroup]="vm.form" (ngSubmit)="submit()" class="flex flex-col">
+            <div class="flex flex-col gap-5 mb-10 pb-10 border-b border-surface-border">
+                <div class="flex-col gap-1.5 flex">
+                    <label for="name" class="create-label text-color">Nazwa rozdziału*</label>
+                    <input pInputText id="name" [type]="'text'" [formControlName]="'name'"
+                        [placeholder]="'Np. Zwierzęta'" [fluid]="true" />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex-col gap-1.5 flex">
+                        <label for="lang1" class="create-label text-color">Język bazowy</label>
+                        <p-autocomplete id="lang1" [formControlName]="'lang1'" [suggestions]="filteredLanguages"
+                            (completeMethod)="filterLanguages($event)" [dropdown]="true"
+                            [placeholder]="'Wpisz lub wybierz...'" [fluid]="true">
+                            <ng-template #item let-item>
+                                @if (languages.includes(item)) {
+                                {{ item }}
+                                } @else {
+                                <div class="flex items-center gap-2 lang-add-text">
+                                    <i class="pi pi-plus-circle lang-add-icon"></i>
+                                    Dodaj: "{{ item }}"
+                                </div>
+                                }
+                            </ng-template>
+                        </p-autocomplete>
+                    </div>
+                    <div class="flex-col gap-1.5 flex">
+                        <label for="lang2" class="create-label text-color">Język docelowy</label>
+                        <p-autocomplete id="lang2" [formControlName]="'lang2'" [suggestions]="filteredLanguages"
+                            (completeMethod)="filterLanguages($event)" [dropdown]="true"
+                            [placeholder]="'Wpisz lub wybierz...'" [fluid]="true">
+                            <ng-template #item let-item>
+                                @if (languages.includes(item)) {
+                                {{ item }}
+                                } @else {
+                                <div class="flex items-center gap-2 lang-add-text">
+                                    <i class="pi pi-plus-circle lang-add-icon"></i>
+                                    Dodaj: "{{ item }}"
+                                </div>
+                                }
+                            </ng-template>
+                        </p-autocomplete>
+                    </div>
+                </div>
+
+                <div class="flex-col gap-1.5 flex">
+                    <label for="description" class="create-label text-color">Opis (opcjonalnie)</label>
+                    <textarea pTextarea id="description" [formControlName]="'description'" [rows]="3"
+                        [placeholder]="'Krótki opis ułatwiający rozpoznanie...'" [fluid]="true"></textarea>
+                </div>
+
+                <div class="create-public-info flex items-center gap-3 p-4">
+                    <p-toggleSwitch id="isPublic" [formControlName]="'isPublic'"></p-toggleSwitch>
+                    <div class="flex flex-col">
+                        <label for="isPublic" class="create-public-label cursor-pointer">Publiczny w
+                            Marketplace</label>
+                        <span class="create-public-hint">Umożliwia innym użytkownikom znalezienie i importowanie tego
+                            rozdziału.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="words-header-title text-color">Słówka (Fiszki)</h2>
+                <p-button (click)="addWord()" [label]="'Dodaj fiszkę'" [icon]="'pi pi-plus'" [outlined]="true"
+                    [size]="'small'" />
+            </div>
+
+            <div [formArrayName]="'words'" class="flex flex-col gap-4">
+                @for (wordCtrl of words.controls; track wordCtrl; let i = $index) {
+                <div [formGroupName]="i" class="create-word-row flex items-center gap-4 p-4">
+                    <div class="flex-1">
+                        <input pInputText [type]="'text'" [formControlName]="'pl'"
+                            [placeholder]="(vm.form.value.lang1 || 'Język bazowy') + ' (Słowo)'" [fluid]="true" />
+                    </div>
+                    <i class="pi pi-arrow-right text-text-muted-color"></i>
+                    <div class="flex-1">
+                        <input pInputText [type]="'text'" [formControlName]="'eng'"
+                            [placeholder]="(vm.form.value.lang2 || 'Język docelowy') + ' (Tłumaczenie)'"
+                            [fluid]="true" />
+                    </div>
+                    <p-button (click)="removeWord(i)" [icon]="'pi pi-trash'" [rounded]="true" [text]="true"
+                        [severity]="'danger'" [size]="'small'" />
+                </div>
+                }
+
+                @if (words.length === 0) {
+                <div class="create-empty-words text-center p-8">
+                    <p>Nie dodano jeszcze żadnych słówek.</p>
+                    <p-button (click)="addWord()" [label]="'Kliknij tutaj, aby dodać pierwsze słówko'" [text]="true"
+                        [size]="'small'" />
+                </div>
+                }
+            </div>
+
+            <div class="flex justify-end gap-4 mt-10 pt-6 border-t border-surface-border">
+                <p-button (click)="onCancel.emit()" [label]="'Anuluj'" [outlined]="true" [severity]="'secondary'" />
+                <p-button [type]="'submit'" [label]="vm.submitLabel" [disabled]="!vm.canSubmit"
+                    [loading]="vm.state.isSaving" [icon]="'pi pi-check'" />
+            </div>
+        </form>
+    </p-card>
+</div>

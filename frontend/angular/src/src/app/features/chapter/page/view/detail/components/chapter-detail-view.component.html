@@ -1,0 +1,109 @@
+@let vm = viewModel().state;
+@if (vm.isLoading) {
+<div class="flex justify-center items-center py-20">
+    <p-progressspinner />
+</div>
+} @else if (vm.chapter) {
+<div class="mx-auto" style="max-width: 56rem">
+    <div class="mb-6">
+        <p-button [routerLink]="'/chapters'" [label]="'Powrót'" [icon]="'pi pi-arrow-left'" [text]="true"
+            [severity]="'secondary'" [size]="'small'" />
+    </div>
+
+    <p-card class="detail-header-card relative overflow-hidden mb-8">
+        <div class="flex flex-col md:flex-row justify-between md:items-start gap-6">
+            <div>
+                <h1 class="detail-title mb-2">{{ vm.chapter!.name }}</h1>
+                <p class="detail-description">{{ vm.chapter!.description || '' }}</p>
+                <div class="mt-4">
+                    <p-tag [value]="'Słówek: ' + vm.chapter!.words.length" [icon]="'pi pi-tags'" [severity]="'info'"
+                        [rounded]="true" />
+                </div>
+            </div>
+
+            <div class="flex gap-2 flex-wrap sm:flex-nowrap">
+                @if (!vm.chapter!.isPublic) {
+                <p-button (onClick)="onShareClick()" [label]="'Udostępnij'" [icon]="'pi pi-share-alt'" [outlined]="true"
+                    [severity]="'success'" [size]="'small'" pTooltip="Udostępnij publicznie w Marketplace" />
+                }
+                @else {
+                <p-tag icon="pi pi-globe" value="Publiczny" severity="info" [rounded]="true"
+                    class="flex items-center" />
+                }
+                <p-button (onClick)="onExportClick()" [label]="'Eksportuj'" [icon]="'pi pi-download'" [outlined]="true"
+                    [severity]="'secondary'" [size]="'small'" pTooltip="Eksportuj do Excela" />
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'edit']" [label]="'Edytuj'"
+                    [icon]="'pi pi-pencil'" [outlined]="true" [severity]="'secondary'" [size]="'small'" />
+                <p-button (onClick)="onDeleteClick()" [label]="'Usuń'" [icon]="'pi pi-trash'" [outlined]="true"
+                    [severity]="'danger'" [size]="'small'" />
+            </div>
+        </div>
+    </p-card>
+
+    <p-card>
+        <div class="detail-words-header flex justify-between items-center pb-5 mb-4 flex-wrap gap-3">
+            <h2 class="detail-words-title flex items-center gap-3">
+                <i class="pi pi-list"></i> Fiszki w tym rozdziale
+            </h2>
+            <div class="mt-8 flex justify-between items-center sm:hidden">
+                <h3 class="detail-mobile-title">Fiszki</h3>
+                <div class="flex gap-2 flex-wrap justify-end">
+                    <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'memory']" [label]="'Memory'"
+                        [icon]="'pi pi-th-large'" [outlined]="true" [size]="'small'" />
+                    <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'exam']" [label]="'Egzamin'"
+                        [icon]="'pi pi-check-circle'" [outlined]="true" [severity]="'success'" [size]="'small'" />
+                    <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'listen-repeat']" [label]="'Wymowa'"
+                        [icon]="'pi pi-microphone'" [outlined]="true" [severity]="'info'" [size]="'small'" />
+                    <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'dictation']" [label]="'Dyktando'"
+                        [icon]="'pi pi-pencil'" [outlined]="true" [severity]="'warn'" [size]="'small'" />
+                    <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'quiz']" [label]="'Quiz'"
+                        [icon]="'pi pi-th-large'" [outlined]="true" [severity]="'warn'" [size]="'small'" />
+                </div>
+            </div>
+
+            <!-- Desktop View -->
+            <div class="hidden sm:flex gap-2">
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'memory']" [label]="'Zagraj Memory'"
+                    [icon]="'pi pi-th-large'" [outlined]="true" [size]="'small'" />
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'exam']" [label]="'Zagraj Egzamin'"
+                    [icon]="'pi pi-check-circle'" [outlined]="true" [severity]="'success'" [size]="'small'" />
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'listen-repeat']"
+                    [label]="'Słuchaj i Powtórz'" [icon]="'pi pi-microphone'" [outlined]="true" [severity]="'info'"
+                    [size]="'small'" />
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'dictation']" [label]="'Dyktando'"
+                    [icon]="'pi pi-pencil'" [outlined]="true" [severity]="'warn'" [size]="'small'" />
+                <p-button [routerLink]="['/chapters', vm.chapter!.id, 'play', 'quiz']" [label]="'Quiz'"
+                    [icon]="'pi pi-th-large'" [outlined]="true" [severity]="'warn'" [size]="'small'" />
+            </div>
+        </div>
+
+        <ul class="detail-word-list">
+            @for (word of vm.chapter!.words; track word.pl) {
+            <li class="detail-word-item flex py-4">
+                <div class="detail-word-col w-1/2 pr-4">
+                    <p class="detail-word-text">{{ word.pl }}</p>
+                    <p class="detail-word-lang mt-0.5">{{ vm.chapter!.lang1 || 'Polski' }}</p>
+                </div>
+                <div class="detail-word-col detail-word-col--eng w-1/2 pr-0 pl-4">
+                    <p class="detail-word-text detail-word-text--eng">{{ word.eng }}</p>
+                    <p class="detail-word-lang mt-0.5">{{ vm.chapter!.lang2 || 'Angielski' }}</p>
+                </div>
+            </li>
+            }
+            @empty {
+            <li class="detail-empty-words p-10">
+                <p>Ten rozdział nie ma jeszcze żadnych fiszek.</p>
+                <a [routerLink]="['/chapters', vm.chapter!.id, 'edit']" class="detail-add-link mt-2">Dodaj fiszki
+                    teraz</a>
+            </li>
+            }
+        </ul>
+    </p-card>
+</div>
+} @else {
+<div class="detail-not-found py-20">
+    <h2 class="detail-not-found-title">Nie znaleziono rozdziału</h2>
+    <p class="detail-not-found-text my-2 mb-6">Rozdział, którego szukasz, nie istnieje lub został usunięty.</p>
+    <p-button [routerLink]="'/chapters'" [label]="'Wróć do listy'" [text]="true" />
+</div>
+}

@@ -1,0 +1,32 @@
+@let vm = viewModel();
+<div class="flex flex-col items-center justify-center p-8 px-4 text-center animate-fade-in">
+    <div class="dict-result-icon w-32 h-32 flex items-center justify-center mb-8 animate-bounce-short">
+        <i class="pi pi-pencil"></i>
+    </div>
+
+    <h2 class="dict-result-title mb-2">Koniec dyktanda!</h2>
+    <p class="dict-result-subtitle mb-10">Oto Twoje podsumowanie:</p>
+
+    <div class="dict-result-card p-8 flex flex-col gap-6 w-full max-w-sm mb-12">
+        <div class="flex flex-col gap-6">
+            <div class="flex justify-between items-center">
+                <span class="dict-result-label">Twój wynik</span>
+                <p-tag [value]="vm.scoreText" severity="success" styleClass="px-4 py-2 text-xl font-black rounded-xl" />
+            </div>
+
+            <div class="h-px bg-surface-border"></div>
+
+            <div class="flex justify-between items-center">
+                <span class="dict-result-label">Skuteczność</span>
+                <span class="dict-result-score">{{ vm.percentText }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-4 justify-center w-full max-w-md">
+        <p-button label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" [fluid]="true"
+            styleClass="py-4 font-black text-lg" (onClick)="onRestart()" />
+        <p-button [routerLink]="['/chapters', vm.state.chapterId]" label="Zakończ" [outlined]="true" [fluid]="true"
+            severity="info" styleClass="py-4 font-bold" />
+    </div>
+</div>

@@ -1,0 +1,63 @@
+.create-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--p-text-color);
+}
+
+.create-subtitle {
+    font-size: 0.875rem;
+    color: var(--p-text-muted-color);
+}
+
+.create-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.lang-add-text {
+    font-weight: 600;
+    color: var(--p-primary-color);
+}
+
+.lang-add-icon {
+    font-size: 1.1rem;
+}
+
+.words-header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.create-word-row {
+    background: var(--p-surface-100);
+    border-radius: 0.75rem;
+}
+
+.create-public-info {
+    background: color-mix(in srgb, var(--p-blue-400), transparent 95%);
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--p-blue-400), transparent 90%);
+
+    @media (prefers-color-scheme: dark) {
+        background: color-mix(in srgb, var(--p-blue-900), transparent 90%);
+        border: 1px solid color-mix(in srgb, var(--p-blue-800), transparent 80%);
+    }
+}
+
+.create-public-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.create-public-hint {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color);
+}
+
+.create-empty-words {
+    background: var(--p-surface-50);
+    border-radius: 0.75rem;
+    border: 1px dashed var(--p-surface-border);
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+}

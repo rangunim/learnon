@@ -1,0 +1,23 @@
+<div class="quiz-summary animate-fade-in">
+    <div class="flex flex-col gap-3 mb-8">
+        @for (item of items(); track item.card.id; let idx = $index) {
+        <div class="quiz-summary-line flex items-center justify-between p-3 rounded-lg border border-surface-border hover:bg-surface-ground cursor-pointer transition-colors"
+            (click)="onEditItem.emit(idx)">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold opacity-50">{{ idx + 1 }}.</span>
+                <span class="font-medium">{{ item.question }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm italic text-muted-color">{{ item.selectedOptionText }}</span>
+                <i class="pi pi-pencil text-xs opacity-30"></i>
+            </div>
+        </div>
+        }
+    </div>
+
+    <div class="flex gap-4 justify-center border-t border-surface-border pt-8">
+        <p-button (click)="onBack.emit()" label="Wróć do pytań" icon="pi pi-arrow-left" [text]="true" />
+        <p-button (click)="onConfirm.emit()" label="Zatwierdź i sprawdź" icon="pi pi-check-circle" [raised]="true"
+            severity="success" styleClass="px-8" />
+    </div>
+</div>

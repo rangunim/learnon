@@ -1,0 +1,31 @@
+<div class="flex items-center justify-center pt-20 px-4">
+    <p-card styleClass="w-full max-w-[28rem]">
+        <div class="text-center mb-8">
+            <h2 class="login-title mb-2">Witamy ponownie!</h2>
+            <p class="login-subtitle">
+                Nie masz konta?
+                <a routerLink="/register" class="login-link ml-1">Zarejestruj się za darmo</a>
+            </p>
+        </div>
+
+        @let vm = viewModel();
+        @if (vm.state.errorMessage) {
+        <p-message severity="error" [text]="vm.state.errorMessage" styleClass="block mb-4" />
+        }
+
+        <form [formGroup]="vm.form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+            <div class="flex flex-col gap-1.5">
+                <label for="email" class="login-label">Adres e-mail</label>
+                <input pInputText id="email" type="email" formControlName="email" fluid />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="password" class="login-label">Hasło</label>
+                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" fluid />
+            </div>
+
+            <p-button type="submit" label="Zaloguj się" [disabled]="vm.form.invalid || vm.state.isLoading"
+                [loading]="vm.state.isLoading" icon="pi pi-sign-in" fluid />
+        </form>
+    </p-card>
+</div>

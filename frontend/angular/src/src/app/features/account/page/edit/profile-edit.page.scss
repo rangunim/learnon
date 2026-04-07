@@ -1,0 +1,70 @@
+.edit-card {
+    background-color: var(--p-surface-card);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--p-surface-border);
+}
+
+.edit-header {
+    background-color: var(--p-surface-ground);
+    border-bottom: 1px solid var(--p-surface-border);
+}
+
+.edit-header-title {
+    color: var(--p-text-color);
+    font-weight: 700;
+}
+
+.edit-section-title {
+    color: var(--p-text-color);
+    font-weight: 700;
+    border-bottom: 1px solid var(--p-surface-border);
+}
+
+.edit-label {
+    color: var(--p-text-color);
+    font-weight: 600;
+}
+
+.avatar-frame {
+    border: 2px solid var(--p-surface-border);
+    background-color: var(--p-surface-ground);
+}
+
+.file-input {
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+}
+
+.file-input::file-selector-button {
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background-color: var(--p-primary-50);
+    color: var(--p-primary-600);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.file-input::file-selector-button:hover {
+    background-color: var(--p-primary-100);
+}
+
+.file-hint {
+    color: var(--p-text-muted-color);
+}
+
+.edit-actions {
+    border-top: 1px solid var(--p-surface-border);
+}
+
+:host ::ng-deep .btn-submit {
+    --p-button-background: #D81265;
+    --p-button-border-color: #D81265;
+    --p-button-color: #ffffff;
+    --p-button-hover-background: #b00f53;
+    --p-button-hover-border-color: #b00f53;
+    --p-button-hover-color: #ffffff;
+}

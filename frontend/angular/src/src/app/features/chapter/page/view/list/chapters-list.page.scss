@@ -1,0 +1,48 @@
+.list-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--p-text-color);
+    letter-spacing: -0.025em;
+}
+
+.list-subtitle {
+    color: var(--p-text-muted-color);
+}
+
+.empty-state {
+    background: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+}
+
+.empty-state-icon {
+    background: var(--p-primary-50);
+    color: var(--p-primary-color);
+}
+
+.empty-state-title {
+    color: var(--p-text-color);
+}
+
+.empty-state-text {
+    color: var(--p-text-muted-color);
+}
+
+.list-search-input {
+    border-radius: 0.75rem;
+}
+
+.list-search-icon {
+    color: var(--p-text-muted-color);
+}
+
+.list-empty-results {
+    color: var(--p-text-muted-color);
+}
+
+.text-muted-color {
+    color: var(--p-text-muted-color);
+}
+
+.list-empty-icon {
+    color: var(--p-text-muted-color);
+}

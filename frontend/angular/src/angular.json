@@ -1,0 +1,134 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "learnon": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "inlineTemplate": true,
+          "inlineStyle": true,
+          "skipTests": true,
+          "type": "component",
+          "addTypeToClassName": false
+        },
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true,
+          "type": "directive",
+          "addTypeToClassName": false
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true,
+          "typeSeparator": "."
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true,
+          "typeSeparator": "."
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true,
+          "typeSeparator": "."
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true,
+          "typeSeparator": "."
+        },
+        "@schematics/angular:service": {
+          "skipTests": true,
+          "type": "service",
+          "addTypeToClassName": false
+        },
+        "@schematics/angular:module": {
+          "typeSeparator": "."
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-builders/custom-esbuild:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "assets"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "plugins": [
+              "esbuild-plugins.mjs"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "40kB",
+                  "maximumError": "50kB"
+                }
+              ],
+              "outputHashing": "all",
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": true,
+              "serviceWorker": "ngsw-config.json"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
+            },
+            "coverage": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "plugins": [
+                "esbuild-plugins.mjs"
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "learnon:build:production"
+            },
+            "development": {
+              "buildTarget": "learnon:build:development"
+            },
+            "coverage": {
+              "buildTarget": "learnon:build:coverage"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

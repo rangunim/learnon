@@ -1,0 +1,39 @@
+.register-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--p-text-color);
+}
+
+.register-subtitle {
+    font-size: 0.875rem;
+    color: var(--p-text-muted-color);
+}
+
+.register-link {
+    font-weight: 600;
+    color: var(--p-primary-color);
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+.register-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+}
+
+.terms-label {
+    color: #4b5563;
+}
+
+.terms-link {
+    color: #D81265;
+    text-decoration: none;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,79 @@
+@let vm = viewModel();
+<div class="animate-fade-in px-4">
+    <!-- Progress Bar -->
+    <div class="mb-8">
+        <p-progressbar [value]="vm.progress" [showValue]="false" styleClass="h-2 dict-progress-bar"></p-progressbar>
+    </div>
+
+    <div class="dict-play-area flex flex-col items-center justify-center p-8 relative overflow-hidden">
+        <!-- Speaker Action -->
+        <div class="dict-speaker-pill flex items-center gap-3 mb-8 px-6 py-2.5">
+            <span class="dict-speaker-label">Słuchaj</span>
+            <p-button icon="pi pi-volume-up" [rounded]="true" [raised]="true" styleClass="w-10 h-10 pulse-animation"
+                (onClick)="onPlayAudio()" pTooltip="Posłuchaj ponownie (Enter)" />
+        </div>
+
+        <!-- Visual Input Area -->
+        <div class="flex flex-col items-center gap-6 w-full max-w-lg">
+            <div class="w-full relative group">
+                <!-- Hidden real input -->
+                <input #dictInput [value]="vm.state.currentInput" (input)="handleInput($event)" type="text"
+                    class="absolute inset-0 dict-hidden-input" autocomplete="off" (focus)="isFocused.set(true)"
+                    (blur)="isFocused.set(false)" (keydown.enter)="handleEnter($event)" />
+
+                <!-- Visual representation -->
+                <div (click)="focusInput()"
+                    class="dict-visual-input flex justify-center flex-wrap gap-1.5 p-6 min-h-[5rem] text-center"
+                    [class.is-correct]="vm.isVisualCorrect">
+
+                    @for (charState of vm.charStates; track $index) {
+                    <span class="dict-char inline-block min-w-[0.5ch]" [class.is-correct-char]="charState.isCorrect"
+                        [class.is-error-char]="charState.isError" [class.is-default-char]="charState.isDefault">
+                        {{ charState.char }}
+                    </span>
+                    }
+
+                    @if (!vm.state.isCorrect && isFocused()) {
+                    <span class="dict-caret"></span>
+                    }
+                </div>
+
+
+            </div>
+
+            @if (vm.state.showHint) {
+            <div class="dict-hint-box p-4 w-full text-center animate-fade-in">
+                <span class="dict-hint-label block mb-1">Poprawny zapis:</span>
+                <span class="dict-hint-text">{{ vm.targetText }}</span>
+            </div>
+            }
+
+            <div class="flex gap-4 w-full mt-2">
+                <p-button [icon]="vm.translationIcon" (onClick)="onToggleTranslation()" [outlined]="true"
+                    severity="info" pTooltip="Podgląd tłumaczenia" [disabled]="vm.isTranslationDisabled" />
+
+                <p-button label="Nie wiem" (onClick)="onGiveUp()" [outlined]="true" [fluid]="true"
+                    [disabled]="vm.isGiveUpDisabled" severity="contrast" />
+            </div>
+
+            @if (vm.showTranslationBox) {
+            <div class="dict-translation-box p-4 w-full text-center animate-fade-in">
+                <span class="dict-hint-label block mb-1">Tłumaczenie:</span>
+                <span class="dict-translation-text">{{ vm.hintText }}</span>
+            </div>
+            }
+        </div>
+
+        <!-- Language Hint Footer -->
+        <div class="dict-lang-footer mt-10 pt-6 w-full flex items-center justify-center gap-4">
+            <span class="dict-lang-label">Wpisz w języku:</span>
+            <div class="px-5 py-2 dict-lang-badge">
+                {{ vm.languageLabel }}
+            </div>
+        </div>
+
+        @if (vm.showSuccessOverlay) {
+        <div class="dict-success-overlay absolute inset-0 animate-fade-in"></div>
+        }
+    </div>
+</div>

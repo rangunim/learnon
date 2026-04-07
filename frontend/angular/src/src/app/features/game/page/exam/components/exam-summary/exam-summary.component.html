@@ -1,0 +1,28 @@
+<div class="animate-fade-in px-4">
+    <div class="flex flex-col gap-4 mb-10">
+        @for (card of cards(); track card.id; let idx = $index) {
+        <div class="exam-summary-card group flex items-center justify-between p-5" (click)="handleEdit(idx)">
+            <div class="flex items-center gap-5">
+                <div class="exam-summary-index flex items-center justify-center w-10 h-10">
+                    {{ idx + 1 }}
+                </div>
+                <span class="exam-summary-eng">{{ sourceWord(card) }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <i class="exam-summary-edit-icon pi pi-pencil"></i>
+            </div>
+        </div>
+        }
+    </div>
+
+    <div class="exam-summary-footer flex flex-col gap-4 p-8 animate-fade-in">
+        <p class="exam-summary-prompt text-center mb-2">Czy chcesz zakończyć egzamin?</p>
+        <div class="flex gap-4">
+            <p-button label="Wróć" icon="pi pi-arrow-left" [outlined]="true" [fluid]="true"
+                styleClass="py-4 exam-summary-btn-back" (onClick)="handleBack()" />
+            <p-button label="Zatwierdź i sprawdź wynik" icon="pi pi-check-circle" iconPos="right" [fluid]="true"
+                severity="success" [raised]="true" styleClass="py-4 exam-summary-btn-confirm"
+                (onClick)="handleConfirm()" />
+        </div>
+    </div>
+</div>

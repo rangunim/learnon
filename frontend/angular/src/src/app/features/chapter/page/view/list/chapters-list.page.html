@@ -1,0 +1,67 @@
+<div>
+    @let vm = viewModel();
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6">
+        <div class="flex-shrink-0">
+            <h1 class="list-title">Twoje Rozdziały</h1>
+            <p class="list-subtitle mt-1">Zarządzaj swoimi fiszkami i uruchamiaj tryby nauki.</p>
+        </div>
+
+        <div class="flex-1 w-full max-w-md mx-4">
+            <div class="relative w-full flex items-center">
+                <i class="pi pi-search absolute left-4 list-search-icon z-10"></i>
+                <input pInputText [type]="'text'" [placeholder]="'Wyszukaj rozdział...'"
+                    class="w-full list-search-input" style="padding-left: 3rem !important"
+                    [value]="vm.state.searchQuery" (input)="updateSearch($event)" />
+            </div>
+        </div>
+
+        <div class="flex gap-2 flex-shrink-0">
+            <p-button (onClick)="onOpenMarketplace()" [label]="'Marketplace'" [icon]="'pi pi-shopping-cart'"
+                [outlined]="true" [severity]="'info'" pTooltip="Przeglądaj publiczne zestawy" />
+
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv,.xlsx,.xls" class="hidden" />
+            <p-button (click)="onTriggerImport(fileInput)" [label]="'Importuj'" [icon]="'pi pi-upload'"
+                [outlined]="true" [severity]="'secondary'" pTooltip="Importuj rozdział z CSV/Excel" />
+            <p-button [routerLink]="'/chapters/new'" [label]="'Stwórz nowy rozdział'" [icon]="'pi pi-plus'"
+                [raised]="true" />
+        </div>
+    </div>
+
+    @if (vm.state.isMarketplaceVisible) {
+    <app-marketplace (onClose)="onCloseMarketplace()" (onImported)="onMarketplaceImported()">
+    </app-marketplace>
+    }
+
+    @if (vm.state.isLoading) {
+    <div class="flex justify-center items-center py-20">
+        <p-progressspinner />
+    </div>
+    } @else if (vm.filteredChapters.length === 0 && !vm.state.searchQuery) {
+    <div class="empty-state p-12 max-w-xl mx-auto mt-10">
+        <div class="empty-state-icon w-20 h-20 flex items-center justify-center mx-auto mb-6">
+            <i class="pi pi-folder-open"></i>
+        </div>
+        <h2 class="empty-state-title mb-2">Brak rozdziałów</h2>
+        <p class="empty-state-text mb-8 max-w-md mx-auto">Wygląda na to, że nie stworzyłeś jeszcze żadnego rozdziału.
+            Utwórz pierwszy zestaw
+            fiszek i zacznij naukę!</p>
+        <p-button [routerLink]="'/chapters/new'" [label]="'Stwórz pierwszy rozdział'" [outlined]="true" />
+    </div>
+    } @else {
+    @if (vm.filteredChapters.length === 0) {
+    <div class="list-empty-results flex flex-col items-center py-12">
+        <i class="pi pi-search-minus list-empty-icon mb-4"></i>
+        <p>Nie odnaleziono rozdziałów pasujących do: "<strong>{{ vm.state.searchQuery }}</strong>"</p>
+        <p-button [label]="'Wyczyść'" [text]="true" [size]="'small'" (onClick)="onClearSearch()" class="mt-2" />
+    </div>
+    } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (chapter of vm.filteredChapters; track chapter.id) {
+        <app-chapter-card [viewModel]="chapter" (onShare)="onShareChapter(chapter)"
+            (onExport)="onExportChapter(chapter, $event)">
+        </app-chapter-card>
+        }
+    </div>
+    }
+    }
+</div>

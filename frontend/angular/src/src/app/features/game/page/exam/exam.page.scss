@@ -1,0 +1,81 @@
+:host {
+    display: block;
+}
+
+.exam-card-panel {
+    border-radius: 1.5rem;
+    box-shadow: var(--p-card-shadow);
+    border: 1px solid var(--p-surface-border);
+    background: var(--p-surface-card);
+    overflow: hidden;
+}
+
+.exam-dialog {
+    :deep(.p-dialog-header) {
+        border-bottom: 1px solid var(--surface-border);
+        padding: 1.5rem 1.5rem 0 1.5rem;
+        background: var(--surface-card);
+    }
+
+    :deep(.p-dialog-content) {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        background: var(--surface-card);
+    }
+}
+
+.exam-stepper {
+    width: 100%;
+
+    :deep(.p-stepper-tab) {
+        flex: 1;
+        justify-content: center;
+        padding: 0.75rem;
+
+        .p-stepper-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        &.p-stepper-tab-active {
+            .p-stepper-number {
+                background: var(--primary-color);
+                color: var(--primary-color-text);
+            }
+
+            .p-stepper-title {
+                color: var(--primary-color);
+            }
+        }
+    }
+}
+
+.exam-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: -0.025em;
+}
+
+.exam-subtitle {
+    color: var(--p-text-muted-color);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.exam-main-panel {
+    background: var(--surface-section);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.exam-empty {
+    background: var(--p-surface-ground);
+    border-radius: 1rem;
+    border: 2px dashed var(--p-surface-border);
+    color: var(--p-text-muted-color);
+    font-weight: bold;
+}

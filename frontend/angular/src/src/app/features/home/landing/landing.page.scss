@@ -1,0 +1,130 @@
+/* ===== Title Area ===== */
+.title-area {
+    background-color: #ffffff;
+}
+
+p-tag[styleClass*="tag-new-version"] {
+    --p-tag-background: rgba(131, 213, 255, 0.15);
+    --p-tag-color: #00A2EE;
+    font-weight: 500;
+}
+
+.hero-title {
+    color: #b445a1;
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+    .hero-title {
+        font-size: 3.5rem;
+    }
+}
+
+.hero-subtitle {
+    color: #6b7280;
+    font-size: 15px;
+}
+
+/* ===== Pink Banner ===== */
+.hero-banner {
+    background-color: rgba(231, 9, 76, 0.9);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.banner-heading {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@media (min-width: 768px) {
+    .banner-heading {
+        font-size: 2.25rem;
+    }
+}
+
+.banner-text {
+    color: #ffffff;
+    opacity: 0.9;
+    font-size: 1.125rem;
+}
+
+p-button[styleClass*="btn-register"] {
+    --p-button-background: #F58A2E;
+    --p-button-border-color: #F58A2E;
+    --p-button-text-color: #ffffff;
+    --p-button-hover-background: #d97520;
+    --p-button-hover-border-color: #d97520;
+    --p-button-hover-text-color: #ffffff;
+    font-weight: 700;
+}
+
+p-button[styleClass*="btn-primary"] {
+    --p-button-background: #18d26b;
+    --p-button-border-color: #18d26b;
+    --p-button-text-color: #ffffff;
+    --p-button-hover-background: #15b25a;
+    --p-button-hover-border-color: #15b25a;
+    --p-button-hover-text-color: #ffffff;
+    font-weight: 700;
+}
+
+/* ===== Features Section ===== */
+.features-section {
+    background-color: #f9fafb;
+}
+
+.section-title {
+    color: #2d3a4b;
+    font-weight: 700;
+    font-size: 1.875rem;
+}
+
+.feature-card {
+    background-color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-title {
+    color: #2d3a4b;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.feature-desc {
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.625;
+}
+
+.feature-icon-glyph {
+    font-size: 1.875rem;
+}
+
+.feature-icon {
+    color: #ffffff;
+}
+
+.feature-icon-1 {
+    background-color: #41EDB2;
+    border-color: #ed5441;
+}
+
+.feature-icon-2 {
+    background-color: #24A3DB;
+    border-color: #24c4db;
+}
+
+.feature-icon-3 {
+    background-color: #F2A458;
+    border-color: #D81265;
+}

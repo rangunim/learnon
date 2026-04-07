@@ -1,0 +1,115 @@
+<p-toast position="bottom-right" key="pwa-update">
+    <ng-template let-message pTemplate="message">
+        <div class="flex flex-col gap-3 w-full">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-cloud-download text-2xl"></i>
+                <span class="font-bold">{{message.summary}}</span>
+            </div>
+            <div>{{message.detail}}</div>
+            <p-button label="Odśwież teraz" (onClick)="reloadPage()" size="small" severity="info"></p-button>
+        </div>
+    </ng-template>
+</p-toast>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="main-layout flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="site-header z-50 rounded-b-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-stretch">
+
+            <!-- Left Side: Logo & Main Navigation -->
+            <div class="flex items-stretch">
+                <a routerLink="/" class="flex items-center pl-4 py-2">
+                    <img ngSrc="/img/logo.png" alt="LearnON Logo" width="155" height="52" priority />
+                </a>
+
+                <nav class="hidden md:flex items-stretch ml-4">
+                    <a routerLink="/" class="nav-link nav-start flex items-center px-6">
+                        <i class="pi pi-home mr-2"></i> Start
+                    </a>
+                    @if (user()) {
+                    <a routerLink="/chapters" class="nav-link nav-chapters flex items-center px-6">Moje Rozdziały</a>
+                    }
+                </nav>
+            </div>
+
+            <!-- Right Side: Auth Menu -->
+            <div class="flex items-stretch">
+                @if (user(); as u) {
+                <div class="user-menu-trigger flex items-center px-6 gap-3 cursor-pointer"
+                    (click)="profileMenu.toggle($event)">
+                    <p-avatar [label]="!u.avatarUrl ? (u.firstName.charAt(0) || '?') : undefined" [image]="u.avatarUrl"
+                        shape="circle" styleClass="user-avatar" />
+                    <span class="user-name hidden sm:inline">Witaj, {{ u.firstName }}! <i
+                            class="pi pi-angle-down ml-1 text-sm"></i></span>
+                </div>
+                <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+                } @else {
+                <a routerLink="/login" class="nav-link nav-login flex items-center px-6 text-sm">Zaloguj</a>
+                <a routerLink="/register" class="nav-link nav-register flex items-center px-6 text-sm">Zarejestruj</a>
+                }
+
+                <!-- Theme Toggle -->
+                <div class="flex items-center px-2">
+                    <p-button [icon]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" [rounded]="true" [text]="true"
+                        (onClick)="toggleTheme()" severity="secondary"
+                        [pTooltip]="isDark() ? 'Tryb jasny' : 'Tryb ciemny'" tooltipPosition="bottom" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 relative w-full pt-8 pb-12 flex flex-col">
+        <div class="max-w-7xl mx-auto px-4 w-full flex-1">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h5 class="footer-heading mb-4 pb-2 inline-block relative">
+                        Kontakt
+                        <span class="footer-heading-accent absolute bottom-0 right-0 w-8 h-[1px]"></span>
+                    </h5>
+                    <address class="not-italic leading-relaxed">
+                        <strong>LearnON</strong><br>
+                        Wybrzeże Wyspiańskiego 37<br>
+                        50-412 Wrocław
+                    </address>
+                    <div class="mt-4 space-y-2">
+                        <p><i class="pi pi-phone mr-2"></i><a href="tel:+48713494345" class="footer-link">(71)
+                                349-43-45</a></p>
+                        <p><i class="pi pi-envelope mr-2"></i><a href="mailto:contact@learnon.edu.pl"
+                                class="footer-link">contact&#64;learnon.edu.pl</a></p>
+                    </div>
+                </div>
+
+                <div>
+                    <h5 class="footer-heading mb-4 pb-2 inline-block relative">
+                        Odnośniki z menu
+                        <span class="footer-heading-accent absolute bottom-0 right-0 w-8 h-[1px]"></span>
+                    </h5>
+                    <ul class="space-y-3">
+                        @if (!user()) {
+                        <li><a routerLink="/register" class="footer-link">Zarejestruj</a></li>
+                        <li><a routerLink="/login" class="footer-link">Zaloguj</a></li>
+                        } @else {
+                        <li><a routerLink="/chapters" class="footer-link">Moje rozdziały</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub Footer -->
+        <div class="sub-footer py-6">
+            <div class="max-w-7xl mx-auto px-4 text-sm flex flex-col items-center sm:items-start">
+                <p>&copy; 2026 LearnON Education. Wszystkie prawa zastrzeżone.</p>
+            </div>
+        </div>
+    </footer>
+</div>

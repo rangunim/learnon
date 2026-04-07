@@ -1,0 +1,70 @@
+<div class="flex flex-col items-center justify-center p-8 px-4 text-center animate-fade-in">
+    <div class="exam-result-icon w-32 h-32 flex items-center justify-center mb-8 animate-win-pop">
+        <i class="pi pi-check-circle"></i>
+    </div>
+
+    <h2 class="exam-result-title mb-2">Egzamin zakończony!</h2>
+    <p class="exam-result-subtitle mb-10">Oto Twój rezultat:</p>
+
+    <div class="exam-result-card flex flex-col gap-6 w-full max-w-sm p-8 mb-12">
+        <div class="flex flex-col gap-6">
+            <div class="flex justify-between items-center">
+                <span class="exam-result-label">Punkty</span>
+                <p-tag [value]="scoreText()" severity="success" styleClass="px-4 py-2 exam-result-tag" />
+            </div>
+
+            <div class="exam-result-divider h-px"></div>
+
+            <div class="flex justify-between items-center">
+                <span class="exam-result-label">Skuteczność</span>
+                <span class="exam-result-score">{{ percentText() }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer summary with filter tabs -->
+    <div class="w-full max-w-lg mb-12">
+        <div class="flex gap-2 mb-6 justify-center">
+            <button class="exam-tab" [class.exam-tab-active]="activeFilter() === 'ALL'" (click)="setFilter('ALL')">
+                Wszystkie ({{ answers().length }})
+            </button>
+            <button class="exam-tab" [class.exam-tab-active]="activeFilter() === 'CORRECT'"
+                (click)="setFilter('CORRECT')">
+                Poprawne ({{ correctCount() }})
+            </button>
+            <button class="exam-tab" [class.exam-tab-active]="activeFilter() === 'INCORRECT'"
+                (click)="setFilter('INCORRECT')">
+                Błędne ({{ incorrectCount() }})
+            </button>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            @for (item of filteredAnswers(); track $index) {
+            <div class="exam-answer-row flex items-center justify-between p-4">
+                <div class="flex flex-col items-start gap-1">
+                    <span class="exam-answer-word">{{ item.card.eng }}</span>
+                    <span class="exam-answer-translation">{{ item.card.pl }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    @if (!item.isCorrect && item.userAnswer) {
+                    <span class="exam-answer-user">{{ item.userAnswer }}</span>
+                    }
+                    <i class="exam-answer-icon pi" [class.pi-check-circle]="item.isCorrect"
+                        [class.pi-times-circle]="!item.isCorrect"></i>
+                </div>
+            </div>
+            } @empty {
+            <div class="exam-answer-empty p-8 text-center">
+                Brak odpowiedzi w tej kategorii.
+            </div>
+            }
+        </div>
+    </div>
+
+    <div class="flex gap-4 justify-center w-full max-w-md">
+        <p-button label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" [fluid]="true"
+            styleClass="py-4 exam-result-btn-restart" (onClick)="handleRestart()" />
+        <p-button [routerLink]="['/chapters', chapterId()]" label="Powrót" [outlined]="true" [fluid]="true"
+            severity="info" styleClass="py-4 exam-result-btn-back" />
+    </div>
+</div>

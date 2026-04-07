@@ -1,0 +1,9 @@
+/* Framework imports only — no app-specific styles here (microfrontend safe) */
+
+@config "../tailwind.config.ts";
+@import url("tailwindcss");
+//@import url("tailwindcss/theme");
+//@import url("tailwindcss/utilities");
+@import url("tailwindcss-primeui");
+@import url("primeicons/primeicons.css");
+@import url("@fontsource-variable/open-sans");

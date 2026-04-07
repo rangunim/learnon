@@ -1,0 +1,671 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "test@learnon.com",
+      "password": "password",
+      "firstName": "Test",
+      "lastName": "User"
+    },
+    {
+      "id": "wuyukg3",
+      "firstName": "import",
+      "lastName": "org.apache.commons.text.StringEscapeUtils;",
+      "email": "jan.nowak@gmail.com",
+      "password": "admin"
+    },
+    {
+      "id": "046i44r",
+      "email": "test.e2e.1772969854117@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-02-28T23:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "5o1kazo",
+      "email": "test.e2e.1772969966921@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-02-28T23:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "x2rbhap",
+      "email": "aa@wp.pl",
+      "firstName": "aa",
+      "lastName": "bb",
+      "password": "aa",
+      "birthDate": "2026-03-23T23:00:00.000Z",
+      "gender": "Kobieta"
+    },
+    {
+      "id": "hoqf0yg",
+      "email": "qq@wp.pl",
+      "firstName": "aab",
+      "lastName": "ccd",
+      "password": "aaaa",
+      "birthDate": "2026-03-02T23:00:00.000Z",
+      "gender": "Mężczyzna"
+    },
+    {
+      "id": "l3y2j5a",
+      "email": "test.e2e.1774890580376@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-02-28T23:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "1pi35gi",
+      "email": "test.e2e.1774939305437@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-02-28T23:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "6zehemg",
+      "email": "test.e2e.1774945341704@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-02-28T23:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "2ae91xs",
+      "email": "aa@wp.pl",
+      "firstName": "aa",
+      "lastName": "aa",
+      "password": "aaaa",
+      "birthDate": "2026-04-07T22:00:00.000Z",
+      "gender": "Kobieta"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "1",
+      "userId": "1",
+      "name": "First Chapter",
+      "description": "My first chapter of flashcards",
+      "words": [
+        {
+          "id": "1",
+          "pl": "pies",
+          "eng": "dog"
+        },
+        {
+          "id": "2",
+          "pl": "kot",
+          "eng": "cat"
+        }
+      ],
+      "lang1": "pl",
+      "lang2": "en",
+      "isPublic": false,
+      "originalAuthor": ""
+    },
+    {
+      "id": "c94e",
+      "name": "rang",
+      "description": "",
+      "words": [
+        {
+          "pl": "Pies",
+          "eng": "Dog"
+        },
+        {
+          "pl": "Kot",
+          "eng": "Cat"
+        }
+      ],
+      "userId": "wuyukg3",
+      "lang1": "pl",
+      "lang2": "en",
+      "isPublic": false,
+      "originalAuthor": ""
+    },
+    {
+      "id": "anim",
+      "name": "Zwierzęta",
+      "description": "Najpopularniejsze zwierzęta świata - poziom podstawowy.",
+      "userId": "wuyukg3",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": true,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "Pies",
+          "eng": "Dog"
+        },
+        {
+          "pl": "Kot",
+          "eng": "Cat"
+        },
+        {
+          "pl": "Słoń",
+          "eng": "Elephant"
+        },
+        {
+          "pl": "Lew",
+          "eng": "Lion"
+        },
+        {
+          "pl": "Tygrys",
+          "eng": "Tiger"
+        },
+        {
+          "pl": "Żyrafa",
+          "eng": "Giraffe"
+        },
+        {
+          "pl": "Małpa",
+          "eng": "Monkey"
+        },
+        {
+          "pl": "Królik",
+          "eng": "Rabbit"
+        },
+        {
+          "pl": "Koń",
+          "eng": "Horse"
+        },
+        {
+          "pl": "Krowa",
+          "eng": "Cow"
+        },
+        {
+          "pl": "Świnia",
+          "eng": "Pig"
+        },
+        {
+          "pl": "Owca",
+          "eng": "Sheep"
+        },
+        {
+          "pl": "Kura",
+          "eng": "Chicken"
+        },
+        {
+          "pl": "Ptak",
+          "eng": "Bird"
+        },
+        {
+          "pl": "Ryba",
+          "eng": "Fish"
+        },
+        {
+          "pl": "Wąż",
+          "eng": "Snake"
+        },
+        {
+          "pl": "Żółw",
+          "eng": "Turtle"
+        },
+        {
+          "pl": "Niedźwiedź",
+          "eng": "Bear"
+        },
+        {
+          "pl": "Wilk",
+          "eng": "Wolf"
+        },
+        {
+          "pl": "Lis",
+          "eng": "Fox"
+        }
+      ]
+    },
+    {
+      "id": "e12d",
+      "name": "aa",
+      "description": "aa",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "aa",
+          "eng": "aa"
+        },
+        {
+          "pl": "vv",
+          "eng": "cc"
+        }
+      ],
+      "userId": "kto02rh"
+    },
+    {
+      "id": "5fc6",
+      "name": "aae",
+      "description": "bb",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "aa",
+          "eng": "bb"
+        },
+        {
+          "pl": "ee",
+          "eng": "ff"
+        },
+        {
+          "pl": "gg",
+          "eng": "jj"
+        }
+      ],
+      "userId": "hoqf0yg"
+    },
+    {
+      "id": "fc30",
+      "name": "bb",
+      "description": "cc",
+      "lang1": "aaa",
+      "lang2": "gfhfh",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "cc",
+          "eng": "dd"
+        },
+        {
+          "pl": "gg",
+          "eng": "jj"
+        },
+        {
+          "pl": "ff",
+          "eng": "ddteter"
+        }
+      ],
+      "userId": "hoqf0yg"
+    },
+    {
+      "id": "829d",
+      "name": "dd",
+      "description": "dd",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "a",
+          "eng": "b"
+        },
+        {
+          "pl": "c",
+          "eng": "d"
+        }
+      ],
+      "userId": "hoqf0yg"
+    },
+    {
+      "id": "a626",
+      "name": "test",
+      "description": "aa",
+      "lang1": "Polskiaa",
+      "lang2": "Angielskidd",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "gg",
+          "eng": "kk"
+        },
+        {
+          "pl": "sss",
+          "eng": "ddd"
+        }
+      ],
+      "userId": "hoqf0yg"
+    },
+    {
+      "id": "7238",
+      "userId": "wuyukg3",
+      "name": "Zwierzęta_export",
+      "description": "Zaimportowano z pliku: Zwierzęta_export.xlsx",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "Pies",
+          "eng": "Dog"
+        },
+        {
+          "pl": "Kot",
+          "eng": "Cat"
+        },
+        {
+          "pl": "Słoń",
+          "eng": "Elephant"
+        },
+        {
+          "pl": "Lew",
+          "eng": "Lion"
+        },
+        {
+          "pl": "Tygrys",
+          "eng": "Tiger"
+        },
+        {
+          "pl": "Żyrafa",
+          "eng": "Giraffe"
+        },
+        {
+          "pl": "Małpa",
+          "eng": "Monkey"
+        },
+        {
+          "pl": "Królik",
+          "eng": "Rabbit"
+        },
+        {
+          "pl": "Koń",
+          "eng": "Horse"
+        },
+        {
+          "pl": "Krowa",
+          "eng": "Cow"
+        },
+        {
+          "pl": "Świnia",
+          "eng": "Pig"
+        },
+        {
+          "pl": "Owca",
+          "eng": "Sheep"
+        },
+        {
+          "pl": "Kura",
+          "eng": "Chicken"
+        },
+        {
+          "pl": "Ptak",
+          "eng": "Bird"
+        },
+        {
+          "pl": "Ryba",
+          "eng": "Fish"
+        },
+        {
+          "pl": "Wąż",
+          "eng": "Snake"
+        },
+        {
+          "pl": "Żółw",
+          "eng": "Turtle"
+        },
+        {
+          "pl": "Niedźwiedź",
+          "eng": "Bear"
+        },
+        {
+          "pl": "Wilk",
+          "eng": "Wolf"
+        },
+        {
+          "pl": "Lis",
+          "eng": "Fox"
+        }
+      ]
+    },
+    {
+      "id": "4c64",
+      "name": "test",
+      "description": "t",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": true,
+      "words": [
+        {
+          "pl": "a",
+          "eng": "b"
+        },
+        {
+          "pl": "c",
+          "eng": "d"
+        }
+      ],
+      "userId": "wuyukg3",
+      "originalAuthor": "import org.apache.commons.text.StringEscapeUtils;"
+    },
+    {
+      "id": "7971",
+      "name": "test",
+      "description": "test",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "words": [
+        {
+          "pl": "test",
+          "eng": "test"
+        },
+        {
+          "pl": "a",
+          "eng": "a"
+        }
+      ],
+      "userId": "wuyukg3",
+      "originalAuthor": "import org.apache.commons.text.StringEscapeUtils;"
+    },
+    {
+      "id": "74e7",
+      "userId": "2ae91xs",
+      "name": "Zwierzęta",
+      "description": "Najpopularniejsze zwierzęta świata - poziom podstawowy.",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "Użytkownik",
+      "words": [
+        {
+          "pl": "Pies",
+          "eng": "Dog"
+        },
+        {
+          "pl": "Kot",
+          "eng": "Cat"
+        },
+        {
+          "pl": "Słoń",
+          "eng": "Elephant"
+        },
+        {
+          "pl": "Lew",
+          "eng": "Lion"
+        },
+        {
+          "pl": "Tygrys",
+          "eng": "Tiger"
+        },
+        {
+          "pl": "Żyrafa",
+          "eng": "Giraffe"
+        },
+        {
+          "pl": "Małpa",
+          "eng": "Monkey"
+        },
+        {
+          "pl": "Królik",
+          "eng": "Rabbit"
+        },
+        {
+          "pl": "Koń",
+          "eng": "Horse"
+        },
+        {
+          "pl": "Krowa",
+          "eng": "Cow"
+        },
+        {
+          "pl": "Świnia",
+          "eng": "Pig"
+        },
+        {
+          "pl": "Owca",
+          "eng": "Sheep"
+        },
+        {
+          "pl": "Kura",
+          "eng": "Chicken"
+        },
+        {
+          "pl": "Ptak",
+          "eng": "Bird"
+        },
+        {
+          "pl": "Ryba",
+          "eng": "Fish"
+        },
+        {
+          "pl": "Wąż",
+          "eng": "Snake"
+        },
+        {
+          "pl": "Żółw",
+          "eng": "Turtle"
+        },
+        {
+          "pl": "Niedźwiedź",
+          "eng": "Bear"
+        },
+        {
+          "pl": "Wilk",
+          "eng": "Wolf"
+        },
+        {
+          "pl": "Lis",
+          "eng": "Fox"
+        }
+      ]
+    },
+    {
+      "id": "f1a5",
+      "userId": "2ae91xs",
+      "name": "Zwierzęta",
+      "description": "Najpopularniejsze zwierzęta świata - poziom podstawowy.",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "Użytkownik",
+      "words": [
+        {
+          "pl": "Pies",
+          "eng": "Dog"
+        },
+        {
+          "pl": "Kot",
+          "eng": "Cat"
+        },
+        {
+          "pl": "Słoń",
+          "eng": "Elephant"
+        },
+        {
+          "pl": "Lew",
+          "eng": "Lion"
+        },
+        {
+          "pl": "Tygrys",
+          "eng": "Tiger"
+        },
+        {
+          "pl": "Żyrafa",
+          "eng": "Giraffe"
+        },
+        {
+          "pl": "Małpa",
+          "eng": "Monkey"
+        },
+        {
+          "pl": "Królik",
+          "eng": "Rabbit"
+        },
+        {
+          "pl": "Koń",
+          "eng": "Horse"
+        },
+        {
+          "pl": "Krowa",
+          "eng": "Cow"
+        },
+        {
+          "pl": "Świnia",
+          "eng": "Pig"
+        },
+        {
+          "pl": "Owca",
+          "eng": "Sheep"
+        },
+        {
+          "pl": "Kura",
+          "eng": "Chicken"
+        },
+        {
+          "pl": "Ptak",
+          "eng": "Bird"
+        },
+        {
+          "pl": "Ryba",
+          "eng": "Fish"
+        },
+        {
+          "pl": "Wąż",
+          "eng": "Snake"
+        },
+        {
+          "pl": "Żółw",
+          "eng": "Turtle"
+        },
+        {
+          "pl": "Niedźwiedź",
+          "eng": "Bear"
+        },
+        {
+          "pl": "Wilk",
+          "eng": "Wolf"
+        },
+        {
+          "pl": "Lis",
+          "eng": "Fox"
+        }
+      ]
+    },
+    {
+      "id": "09d0",
+      "userId": "wuyukg3",
+      "name": "test_export (1)",
+      "description": "Zaimportowano z pliku: test_export (1).xlsx",
+      "lang1": "Polski",
+      "lang2": "Angielski",
+      "isPublic": false,
+      "originalAuthor": "",
+      "words": [
+        {
+          "pl": "a",
+          "eng": "b"
+        },
+        {
+          "pl": "c",
+          "eng": "d"
+        }
+      ]
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
