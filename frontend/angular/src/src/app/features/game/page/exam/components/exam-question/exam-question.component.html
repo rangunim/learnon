@@ -1,0 +1,28 @@
+@let vm = viewModel();
+<div class="animate-fade-in px-4">
+    <!-- Progress Bar -->
+    <div class="mb-8">
+        <p-progressbar [value]="vm.progress" [showValue]="false" styleClass="h-2 exam-progress-bar"></p-progressbar>
+    </div>
+
+    <div class="exam-play-area flex flex-col items-center justify-center p-8">
+        <div class="exam-source-label mb-3">{{ vm.sourceLang }}</div>
+        <div class="exam-source-word mb-10 text-center max-w-full">
+            {{ vm.currentSourceWord }}
+        </div>
+
+        <div class="exam-source-label mb-3">{{ vm.targetLang }}</div>
+
+        <div class="relative w-full max-w-sm">
+            <input #inputEl [formControl]="answerCtrl" type="text" class="exam-input w-full p-4"
+                placeholder="Wpisz tłumaczenie..." autocomplete="off" (keydown.enter)="onSubmit()" />
+        </div>
+
+        <div class="flex gap-4 mt-10 w-full justify-center max-w-xs">
+            <p-button label="Nie wiem" (onClick)="onSkip()" severity="contrast" [text]="true"
+                styleClass="exam-skip-btn" />
+            <p-button label="Sprawdź" (onClick)="onSubmit()" icon="pi pi-check" [disabled]="vm.isSubmitDisabled"
+                [raised]="true" styleClass="exam-submit-btn" />
+        </div>
+    </div>
+</div>

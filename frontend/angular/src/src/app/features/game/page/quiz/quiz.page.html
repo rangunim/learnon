@@ -1,0 +1,72 @@
+@let vm = localstore.viewModel();
+<div class="quiz-wrapper mx-auto pb-20" style="max-width: 48rem">
+    <div class="flex items-center justify-between mb-4">
+        <p-button [routerLink]="['/chapters', vm.chapterId]" label="Wróć" icon="pi pi-arrow-left" [text]="true"
+            severity="secondary" size="small" />
+
+        @if (vm.state.currentStep === 'QUESTIONS') {
+        <div class="flex items-center gap-2">
+            <p-tag [value]="(vm.state.currentIndex + 1) + ' / ' + vm.totalCount" severity="info" [rounded]="true" />
+            <p-button label="Idź do podsumowania" icon="pi pi-list" [text]="true" size="small" severity="warn"
+                (onClick)="handleForceSummary()" />
+        </div>
+        } @else if (vm.state.currentStep === 'SUMMARY') {
+        <p-tag value="Podsumowanie" severity="warn" [rounded]="true" />
+        } @else {
+        <p-tag value="Wyniki" severity="success" [rounded]="true" />
+        }
+    </div>
+
+    <p-card class="quiz-card-panel">
+        <div class="quiz-heading mb-4 flex justify-between items-start">
+            <div>
+                <h1 class="quiz-title leading-tight">
+                    @switch (vm.state.currentStep) {
+                    @case ('QUESTIONS') { Quiz }
+                    @case ('SUMMARY') { Arkusz odpowiedzi }
+                    @case ('RESULTS') { Twój wynik }
+                    }
+                </h1>
+                <p class="quiz-subtitle text-sm">
+                    @switch (vm.state.currentStep) {
+                    @case ('QUESTIONS') { Wybierz poprawne tłumaczenie. }
+                    @case ('SUMMARY') { Sprawdź swoje odpowiedzi przed zatwierdzeniem. }
+                    @case ('RESULTS') { Zobacz jak Ci poszło! }
+                    }
+                </p>
+            </div>
+
+            @if (vm.state.currentStep === 'QUESTIONS') {
+            <p-button icon="pi pi-sync" [rounded]="true" [text]="true" severity="secondary"
+                (onClick)="handleToggleDirection()" pTooltip="Zmień kierunek" class="mt-1" />
+            }
+        </div>
+
+        @if (vm.state.isLoading) {
+        <div class="flex justify-center items-center py-12">
+            <p-progressspinner />
+        </div>
+        } @else if (vm.totalCount === 0) {
+        <div class="quiz-empty py-12">
+            <p>Brak fiszek w tym rozdziale.</p>
+        </div>
+        } @else {
+        @switch (vm.state.currentStep) {
+        @case ('QUESTIONS') {
+        <app-quiz-question [item]="vm.currentItem" [currentIndex]="vm.state.currentIndex" [totalCount]="vm.totalCount"
+            [progress]="vm.progress" (selectOption)="handleSelectOption($event)" (next)="handleNextStep()"
+            (prev)="handlePrevStep()" />
+        }
+        @case ('SUMMARY') {
+        <app-quiz-summary [items]="vm.state.items" (onEditItem)="handleGoToStep($event)" (onConfirm)="handleNextStep()"
+            (onBack)="handlePrevStep()" />
+        }
+        @case ('RESULTS') {
+        <app-quiz-result [score]="vm.state.score" [totalCount]="vm.totalCount" [chapterId]="vm.chapterId"
+            [filteredItems]="vm.filteredItems" [currentFilter]="vm.currentFilter" (onRestart)="handleRestartGame()"
+            (onFilterChange)="handleSetFilter($event)" />
+        }
+        }
+        }
+    </p-card>
+</div>

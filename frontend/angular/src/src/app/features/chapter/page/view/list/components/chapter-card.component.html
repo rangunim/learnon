@@ -1,0 +1,49 @@
+@let vm = viewModel();
+<div class="chapter-card relative flex flex-col h-full cursor-pointer" [routerLink]="['/chapters', vm.id]">
+    <!-- Colorful top strip -->
+    <div class="card-strip absolute top-0 left-0 w-full h-2"></div>
+
+    <div class="flex justify-between items-start mb-6 mt-2 gap-4">
+        <div class="flex-1 min-w-0">
+            <h3 class="card-title truncate">{{ vm.name }}</h3>
+            <p class="card-desc">{{ vm.description || '' }}</p>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+            <p-tag [value]="vm.words.length + ' słówek'" [rounded]="true"
+                [styleClass]="'card-word-count px-3 py-1 whitespace-nowrap'" />
+            <div class="flex gap-1">
+                @if (!vm.isPublic) {
+                <p-button (onClick)="handleShare($event)" [icon]="'pi pi-share-alt'" [text]="true" [rounded]="true"
+                    [size]="'small'" [severity]="'success'" pTooltip="Udostępnij publicznie" />
+                } @else {
+                <p-tag icon="pi pi-globe" severity="info" [rounded]="true" pTooltip="Publiczny" />
+                }
+                <p-button (onClick)="handleExport($event)" [icon]="'pi pi-download'" [text]="true" [rounded]="true"
+                    [size]="'small'" [severity]="'secondary'" pTooltip="Eksportuj do Excela" />
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-auto pt-4 flex flex-col gap-3 w-full">
+        <div class="flex flex-wrap gap-2">
+            <p-button [routerLink]="['/chapters', vm.id, 'play', 'memory']" [label]="'Memory'"
+                (click)="$event.stopPropagation()" [icon]="'pi pi-star-fill'"
+                [styleClass]="'btn-memory flex-1 min-w-[120px] btn-action py-2.5'" />
+            <p-button [routerLink]="['/chapters', vm.id, 'play', 'exam']" [label]="'Egzamin'"
+                (click)="$event.stopPropagation()" [icon]="'pi pi-check-circle'"
+                [styleClass]="'btn-exam flex-1 min-w-[120px] btn-action py-2.5'" />
+            <p-button [routerLink]="['/chapters', vm.id, 'play', 'listen-repeat']" [label]="'Wymowa'"
+                (click)="$event.stopPropagation()" [icon]="'pi pi-microphone'"
+                [styleClass]="'btn-listen flex-1 min-w-[120px] btn-action py-2.5'" />
+            <p-button [routerLink]="['/chapters', vm.id, 'play', 'dictation']" [label]="'Dyktando'"
+                (click)="$event.stopPropagation()" [icon]="'pi pi-pencil'"
+                [styleClass]="'btn-dictation flex-1 min-w-[120px] btn-action py-2.5'" />
+            <p-button [routerLink]="['/chapters', vm.id, 'play', 'quiz']" [label]="'Quiz'"
+                (click)="$event.stopPropagation()" [icon]="'pi pi-th-large'"
+                [styleClass]="'btn-quiz flex-1 min-w-[120px] btn-action py-2.5'" />
+        </div>
+
+        <p-button [routerLink]="['/chapters', vm.id]" [label]="'Przeglądaj słówka'" [text]="true"
+            (click)="$event.stopPropagation()" [styleClass]="'btn-browse w-full btn-action'" />
+    </div>
+</div>

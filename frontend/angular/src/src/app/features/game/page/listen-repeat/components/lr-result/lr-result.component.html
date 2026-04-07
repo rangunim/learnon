@@ -1,0 +1,30 @@
+<div class="lr-result flex flex-col items-center justify-center p-8 px-4 text-center animate-fade-in">
+    <div class="lr-result-icon w-32 h-32 flex items-center justify-center mb-8 animate-mic-bounce">
+        <i class="pi pi-microphone text-5xl"></i>
+    </div>
+
+    <h2 class="text-4xl font-black text-surface-900 mb-2">Świetna robota!</h2>
+    <p class="text-xl font-bold text-muted-color mb-10">Ukończyłeś sesję wymowy.</p>
+
+    <div class="lr-stats-card w-full max-w-sm p-8 mb-12">
+        <div class="flex flex-col gap-6">
+            <div class="flex justify-between items-center">
+                <span class="text-muted-color font-bold uppercase tracking-widest text-xs">Ukończono</span>
+                <p-tag [value]="totalCount().toString() + ' słówek'" severity="success"
+                    styleClass="px-5 py-2 text-xl font-black rounded-xl" />
+            </div>
+
+            <div class="h-px bg-surface-border"></div>
+
+            <div class="text-xs font-black text-primary-color uppercase tracking-[0.2em]">Twój akcent jest coraz lepszy!
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-4 justify-center w-full max-w-md">
+        <p-button label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" [fluid]="true"
+            styleClass="py-4 font-black text-lg" (onClick)="onRestart()" />
+        <p-button [routerLink]="['/chapters', chapterId()]" label="Zakończ" [outlined]="true" [fluid]="true"
+            severity="info" styleClass="py-4 font-bold" />
+    </div>
+</div>

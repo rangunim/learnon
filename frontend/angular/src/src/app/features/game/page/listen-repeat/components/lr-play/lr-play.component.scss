@@ -1,0 +1,128 @@
+.lr-play-area {
+    background-color: var(--p-surface-ground);
+    border: 1px solid var(--p-surface-border);
+    border-radius: 1.5rem;
+}
+
+.lr-lives-indicator {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--p-shadow-sm);
+
+    .pi {
+        &.is-active {
+            color: var(--p-primary-400);
+        }
+
+        &.is-lost {
+            color: var(--p-red-500);
+        }
+    }
+}
+
+.lr-speaker-pill {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: 9999px;
+    box-shadow: var(--p-shadow-sm);
+}
+
+.lr-mic-btn {
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.05);
+    }
+}
+
+.lr-lang-box {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+}
+
+// Animations
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes ping-large {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    70%,
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes bounce-custom {
+
+    0%,
+    100% {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    50% {
+        transform: translateY(-50%) translateX(10px);
+    }
+}
+
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes pulse-animation {
+    0% {
+        box-shadow: 0 0 0 0 var(--p-primary-500);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px transparent;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease-out;
+}
+
+.animate-ping-large {
+    animation: ping-large 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-bounce-custom {
+    animation: bounce-custom 2s infinite;
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 2s infinite;
+}
+
+.pulse-animation {
+    animation: pulse-animation 2s infinite;
+}

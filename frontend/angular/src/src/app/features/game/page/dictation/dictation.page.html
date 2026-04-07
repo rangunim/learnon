@@ -1,0 +1,82 @@
+@let vm = localstore.viewModel();
+<div class="dict-container mx-auto pb-20 max-w-3xl">
+    <div class="flex items-center justify-between mb-6">
+        <p-button [routerLink]="['/chapters', vm.state.chapterId]" label="Wróć" icon="pi pi-arrow-left" [text]="true"
+            severity="secondary" size="small" />
+
+        @if (vm.state.currentStep === 'PLAY') {
+        <div class="flex items-center gap-2">
+            <p-tag [value]="vm.counterText" severity="info" [rounded]="true" />
+        </div>
+        } @else {
+        <p-tag value="Wyniki" severity="success" [rounded]="true" />
+        }
+    </div>
+
+    <p-card class="dict-card-panel">
+        <div class="mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="dict-title mb-2 leading-tight">
+                    @switch (vm.state.currentStep) {
+                    @case ('PLAY') { Dyktando }
+                    @case ('RESULTS') { Twój wynik }
+                    }
+                </h1>
+                <p class="dict-subtitle text-sm">
+                    @switch (vm.state.currentStep) {
+                    @case ('PLAY') { Posłuchaj i wpisz to, co słyszysz. }
+                    @case ('RESULTS') { Zobacz jak Ci poszło! }
+                    }
+                </p>
+            </div>
+
+            @if (vm.state.currentStep === 'PLAY') {
+            <div class="flex gap-2 items-center mt-1">
+                <p-button icon="pi pi-palette" [rounded]="true" [text]="true" [severity]="vm.highlightSeverity"
+                    (onClick)="toggleHighlight()" pTooltip="Podświetlanie pierwszej błędnej litery" />
+                <p-button icon="pi pi-sync" [rounded]="true" [text]="true" severity="secondary" (onClick)="toggleMode()"
+                    pTooltip="Zmień kierunek" />
+            </div>
+            }
+        </div>
+
+        @if (vm.state.isLoading) {
+        <div class="flex justify-center items-center py-20">
+            <p-progressspinner />
+        </div>
+        } @else if (vm.totalCount === 0) {
+        <div class="dict-empty text-center p-16">
+            <p>Brak fiszek w tym rozdziale.</p>
+        </div>
+        } @else {
+        @switch (vm.state.currentStep) {
+        @case ('PLAY') {
+        <div class="flex items-center w-full relative">
+            <div class="hidden sm:flex pr-4">
+                <p-button icon="pi pi-chevron-left" (onClick)="prevStep()" [disabled]="vm.isPrevDisabled"
+                    [rounded]="true" [text]="true" severity="secondary" size="large" />
+            </div>
+            <div class="flex-1 w-full min-w-0">
+                <app-dictation-play [viewModel]="vm" (nextWord)="nextWord()" (toggleTranslation)="toggleTranslation()"
+                    (enterPressed)="handleEnter()" (giveUp)="giveUp()" (inputChange)="handleInputChange($event)"
+                    (playAudio)="playAudio()" />
+            </div>
+            <div class="hidden sm:flex pl-4">
+                <p-button icon="pi pi-chevron-right" (onClick)="nextStep()" [disabled]="vm.isNextDisabled"
+                    [rounded]="true" [text]="true" severity="secondary" size="large" />
+            </div>
+        </div>
+        <div class="flex sm:hidden justify-between mt-6 px-2">
+            <p-button icon="pi pi-chevron-left" label="Poprzednie" (onClick)="prevStep()" [disabled]="vm.isPrevDisabled"
+                [text]="true" severity="secondary" size="small" />
+            <p-button icon="pi pi-chevron-right" label="Następne" iconPos="right" (onClick)="nextStep()"
+                [disabled]="vm.isNextDisabled" [text]="true" severity="secondary" size="small" />
+        </div>
+        }
+        @case ('RESULTS') {
+        <app-dictation-result [viewModel]="vm" (restart)="restart()" />
+        }
+        }
+        }
+    </p-card>
+</div>

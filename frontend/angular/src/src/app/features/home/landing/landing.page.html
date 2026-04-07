@@ -1,0 +1,87 @@
+<!-- Title Area (Before Image) -->
+<div class="title-area text-center py-12 px-4">
+    <div class="flex justify-center mb-6">
+        <p-tag value="Nowa, inteligentniejsza wersja LearnON" [rounded]="true" styleClass="tag-new-version px-4 py-2" />
+    </div>
+    <h1 class="hero-title mb-4">
+        Poznaj skuteczny<br>sposób<br>na szybką naukę
+    </h1>
+    <p class="hero-subtitle max-w-2xl mx-auto">
+        Interaktywne fiszki, testy z wiedzy oraz gry edukacyjne. Zmień<br>
+        mozolne wkuwanie w pasjonującą zabawę.
+    </p>
+</div>
+
+<!-- Hero Section with Slide Image & Overlapping Pink Text Banner -->
+<section class="relative w-full flex flex-col items-center">
+    <div class="w-full relative max-h-[600px] overflow-hidden">
+        <img ngSrc="/img/slides/1.jpg" alt="LearnON Slide" class="w-full object-cover object-center min-h-[400px]"
+            width="1920" height="600" priority />
+    </div>
+
+    <!-- Overlapping Pink Banner -->
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 -mt-24 sm:-mt-32 md:-mt-40 mb-12">
+        <div
+            class="hero-banner p-8 md:p-12 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+            <div class="text-center md:text-left">
+                <h2 class="banner-heading mb-2">Mądre nauczanie...</h2>
+                <p class="banner-text">odbywa się poprzez rozwój i zabawę!<br>
+                    @if (!user()) {
+                    Aby korzystać z platformy musisz być zalogowany
+                    }
+                </p>
+            </div>
+            @if (!user()) {
+            <div class="flex gap-4 shrink-0 mt-4 md:mt-0">
+                <p-button routerLink="/register" label="Zarejestruj" styleClass="btn-register px-8 py-3" />
+                <p-button routerLink="/login" label="Zaloguj" styleClass="btn-primary px-8 py-3" />
+            </div>
+            } @else {
+            <div class="flex gap-4 shrink-0 mt-4 md:mt-0">
+                <p-button routerLink="/chapters" label="Zacznij naukę!" styleClass="btn-primary px-8 py-3" />
+            </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-20">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="section-title mb-4">Dlaczego my?</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="feature-card rounded-xl p-8 text-center">
+                <div
+                    class="feature-icon border-[3px] border-solid feature-icon-1 mx-auto w-[90px] h-[90px] rounded-full flex items-center justify-center mb-6">
+                    <i class="pi pi-bolt feature-icon-glyph"></i>
+                </div>
+                <h3 class="feature-title mb-3">Szybka nauka</h3>
+                <p class="feature-desc">Efektywne metody zapamiętywania oparte na fiszkach i powtórkach.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card rounded-xl p-8 text-center">
+                <div
+                    class="feature-icon border-[3px] border-solid feature-icon-2 mx-auto w-[90px] h-[90px] rounded-full flex items-center justify-center mb-6">
+                    <i class="pi pi-mobile feature-icon-glyph"></i>
+                </div>
+                <h3 class="feature-title mb-3">Gdziekolwiek jesteś</h3>
+                <p class="feature-desc">Aplikacja dostosowana do urządzeń mobilnych - ucz się w drodze.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card rounded-xl p-8 text-center">
+                <div
+                    class="feature-icon border-[3px] border-solid feature-icon-3 mx-auto w-[90px] h-[90px] rounded-full flex items-center justify-center mb-6">
+                    <i class="pi pi-chart-bar feature-icon-glyph"></i>
+                </div>
+                <h3 class="feature-title mb-3">Śledź postępy</h3>
+                <p class="feature-desc">Analizuj swoje wyniki za pomocą testów i gier edukacyjnych.</p>
+            </div>
+        </div>
+    </div>
+</section>

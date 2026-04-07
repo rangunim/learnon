@@ -1,0 +1,29 @@
+@let vm = viewModel();
+<p-card [header]="vm.chapter.name" styleClass="public-chapter-card">
+    <div class="flex flex-col gap-3">
+        <p class="chapter-description">
+            {{ vm.chapter.description || '' }}
+        </p>
+
+        <div class="chapter-metadata flex flex-wrap gap-2 items-center">
+            <p-tag [value]="vm.chapter.lang1" severity="secondary"></p-tag>
+            <span class="metadata-separator">→</span>
+            <p-tag [value]="vm.chapter.lang2" severity="secondary"></p-tag>
+            <span class="author-label">Autor: {{ vm.chapter.originalAuthor || 'Anonim' }}</span>
+        </div>
+
+        <div class="word-count">
+            {{ vm.chapter.words.length }} słówek
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-2">
+            <p-button (onClick)="preview($event)" label="Podgląd" icon="pi pi-eye"
+                styleClass="flex-1 p-button-sm p-button-secondary p-button-outlined" />
+            <p-button (onClick)="import($event)" label="Importuj" icon="pi pi-download"
+                styleClass="flex-1 p-button-sm p-button-outlined" [disabled]="vm.isOwnChapter"
+                [pTooltip]="vm.isOwnChapter ? 'Nie możesz zaimportować własnego rozdziału' : ''" />
+        </div>
+    </ng-template>
+</p-card>

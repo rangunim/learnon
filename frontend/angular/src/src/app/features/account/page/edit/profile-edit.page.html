@@ -1,0 +1,71 @@
+<div class="max-w-4xl mx-auto py-10 px-4">
+    @let vm = viewModel();
+
+    <div class="edit-card rounded-2xl overflow-hidden">
+
+        <div class="edit-header px-8 py-6 flex justify-between items-center">
+            <h2 class="edit-header-title text-2xl">
+                Edycja konta
+            </h2>
+            <p-button routerLink="/account/profile" label="Wróć do profilu" icon="pi pi-arrow-left" [text]="true"
+                severity="secondary" size="small" />
+        </div>
+
+        <div class="p-8">
+            <form [formGroup]="vm.form" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
+
+                <!-- Passwords Section -->
+                <div>
+                    <h3 class="edit-section-title text-lg mb-4 pb-2">Zmiana Hasła</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="oldPassword" class="edit-label text-sm">Stare Hasło</label>
+                            <p-password id="oldPassword" formControlName="oldPassword" [toggleMask]="true"
+                                [feedback]="false" styleClass="w-full" fluid />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="newPassword" class="edit-label text-sm">Nowe Hasło</label>
+                            <p-password id="newPassword" formControlName="newPassword" [toggleMask]="true"
+                                [feedback]="false" styleClass="w-full" fluid />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Section -->
+                <div>
+                    <h3 class="edit-section-title text-lg mb-4 pb-2">Awatar</h3>
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <div
+                            class="avatar-frame w-24 h-24 rounded-full overflow-hidden flex items-center justify-center shrink-0">
+                            <img [src]="vm.state.avatarPreview || '/img/avatar.png'" alt="Avatar"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)"
+                                class="file-input block w-full text-sm" />
+                            <p class="file-hint text-xs mt-2">Dozwolone formaty: JPG, PNG. Maksymalny rozmiar: 2MB.</p>
+                        </div>
+                        <div class="shrink-0">
+                            <p-button type="button" (click)="removeAvatar()" label="Usuń awatar" icon="pi pi-trash"
+                                severity="danger" [outlined]="true" size="small" [disabled]="!vm.state.avatarPreview" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="edit-actions pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p-button type="button" (click)="deleteAccount()" label="Usuń konto" icon="pi pi-user-minus"
+                        severity="danger" [text]="true" />
+                    <div class="flex gap-4 w-full sm:w-auto">
+                        <p-button type="button" (click)="onReset()" label="Wyczyść" severity="secondary"
+                            [outlined]="true" class="w-full sm:w-auto" styleClass="w-full" />
+                        <p-button type="submit" label="Zaktualizuj" icon="pi pi-check" [disabled]="vm.state.isLoading"
+                            [loading]="vm.state.isLoading" class="w-full sm:w-auto" styleClass="btn-submit w-full" />
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>

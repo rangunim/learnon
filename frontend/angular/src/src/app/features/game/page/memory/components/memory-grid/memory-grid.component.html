@@ -1,0 +1,31 @@
+@let vm = viewModel();
+<div class="memory-grid animate-fade-in p-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 perspective-1000">
+        @for (card of vm.state.cards; track card.id) {
+        <div class="memory-card-container relative h-28 cursor-pointer preserve-3d transition-transform duration-300 hover:scale-105"
+            [class.flipped]="card.isFlipped || card.isMatched" (click)="onCardClick(card)">
+
+            <!-- Front (Hidden side) -->
+            <div class="memory-card-side absolute inset-0 backface-hidden flex items-center justify-center p-2 rounded-xl shadow-sm border transition-colors"
+                [class]="card.type === 'lang1' ? 'bg-surface-600 border-surface-700 text-white' : 'bg-primary-600 border-primary-700 text-white'">
+                <i class="pi pi-question text-2xl opacity-40"></i>
+                <div class="absolute top-2 left-2 text-[10px] font-black uppercase opacity-30">
+                    {{ card.type === 'lang1' ? vm.state.lang1.substring(0,2).toUpperCase() :
+                    vm.state.lang2.substring(0,2).toUpperCase() }}
+                </div>
+            </div>
+
+            <!-- Back (Revealed side) -->
+            <div class="memory-card-side absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center p-3 text-center rounded-xl shadow-md border transition-all duration-300"
+                [class]="card.isMatched ? 'bg-green-500 border-green-600 text-white' : (card.type === 'lang1' ? 'bg-surface-card border-surface-border text-surface-900' : 'bg-surface-card border-surface-border text-primary-color')">
+                <span class="text-sm font-black break-words leading-tight">{{ card.text }}</span>
+                <div class="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-full text-[8px] font-black shadow-sm"
+                    [class]="card.isMatched ? 'bg-white/20 text-white' : (card.type === 'lang1' ? 'bg-surface-200 text-surface-700' : 'bg-primary-100 text-primary-700')">
+                    {{ card.type === 'lang1' ? vm.state.lang1.substring(0,2).toUpperCase() :
+                    vm.state.lang2.substring(0,2).toUpperCase() }}
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>

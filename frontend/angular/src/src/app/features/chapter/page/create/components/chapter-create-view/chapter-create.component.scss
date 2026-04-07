@@ -1,0 +1,58 @@
+.create-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--p-text-color);
+}
+
+.create-subtitle {
+    color: var(--p-text-muted-color);
+}
+
+.create-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.lang-add-text {
+    color: var(--p-primary-color);
+    font-weight: 700;
+}
+
+.lang-add-icon {
+    font-size: 0.75rem;
+}
+
+.words-header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Semantic variable bindings for Tailwind-like classes used in template */
+.border-surface-border {
+    border-color: var(--p-surface-border);
+}
+
+.bg-surface-ground {
+    background-color: var(--p-surface-ground);
+}
+
+.text-text-muted-color {
+    color: var(--p-text-muted-color);
+}
+
+.text-color {
+    color: var(--p-text-color);
+}
+
+.create-word-row {
+    border: 1px solid var(--p-surface-border);
+    background-color: var(--p-surface-ground);
+    border-radius: 1rem;
+}
+
+.create-empty-words {
+    border: 2px dashed var(--p-surface-border);
+    background-color: var(--p-surface-ground);
+    color: var(--p-text-muted-color);
+    border-radius: 1rem;
+}

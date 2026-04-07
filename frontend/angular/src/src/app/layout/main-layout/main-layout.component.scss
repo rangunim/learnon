@@ -1,0 +1,102 @@
+/* ===== Layout Background ===== */
+.main-layout {
+    background-color: var(--p-content-background, #f8f9fa);
+    color: var(--p-text-color, #656565);
+}
+
+/* ===== Header ===== */
+.site-header {
+    background-color: var(--p-content-background, #ffffff);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--p-content-border-color, #f3f4f6);
+}
+
+/* ===== Nav Links (shared) ===== */
+.nav-link {
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background-color 0.2s;
+}
+
+.nav-start {
+    background-color: #18d26b;
+}
+
+.nav-start:hover {
+    background-color: #15b25a;
+}
+
+.nav-chapters {
+    background-color: #D81265;
+}
+
+.nav-chapters:hover {
+    background-color: #b00f53;
+}
+
+.nav-login {
+    background-color: #27a93c;
+}
+
+.nav-login:hover {
+    background-color: #218c32;
+}
+
+.nav-register {
+    background-color: #dc5a02;
+}
+
+.nav-register:hover {
+    background-color: #b84b02;
+}
+
+/* ===== User Menu ===== */
+.user-menu-trigger {
+    background-color: var(--p-surface-ground);
+    transition: background-color 0.2s;
+}
+
+.user-menu-trigger:hover {
+    background-color: var(--p-surface-100);
+}
+
+.user-name {
+    color: var(--p-text-color);
+    font-weight: 500;
+}
+
+p-avatar[styleClass*="user-avatar"] {
+    --p-avatar-background: #D81265;
+    --p-avatar-color: #ffffff;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+    background-color: #E7094C;
+    color: #ffffff;
+}
+
+.footer-heading {
+    font-weight: 700;
+    font-size: 1.125rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-heading-accent {
+    background-color: #ffffff;
+}
+
+.footer-link {
+    color: #ffffff;
+    transition: color 0.2s;
+}
+
+.footer-link:hover {
+    color: #e5e7eb;
+}
+
+.sub-footer {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}

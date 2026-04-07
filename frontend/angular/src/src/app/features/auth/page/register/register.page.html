@@ -1,0 +1,74 @@
+<div class="flex items-center justify-center pt-10 pb-20 px-4">
+    <p-card styleClass="w-full max-w-[28rem]">
+        <div class="text-center mb-8">
+            <h2 class="register-title mb-2">Dołącz do nas</h2>
+            <p class="register-subtitle">
+                Masz już konto?
+                <a routerLink="/login" class="register-link ml-1">Zaloguj się!</a>
+            </p>
+        </div>
+
+        @let vm = viewModel();
+        @if (vm.state.errorMessage) {
+        <p-message severity="error" [text]="vm.state.errorMessage" styleClass="block mb-4" />
+        }
+
+        <form [formGroup]="vm.form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="firstName" class="register-label">Imię</label>
+                    <input pInputText id="firstName" type="text" formControlName="firstName" fluid />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="lastName" class="register-label">Nazwisko</label>
+                    <input pInputText id="lastName" type="text" formControlName="lastName" fluid />
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="regEmail" class="register-label">Adres e-mail</label>
+                <input pInputText id="regEmail" type="email" formControlName="email" fluid />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="regPassword" class="register-label">Hasło</label>
+                <p-password id="regPassword" formControlName="password" [toggleMask]="true" [feedback]="false" fluid />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="birthDate" class="register-label">Data urodzenia</label>
+                <p-datepicker id="birthDate" formControlName="birthDate" dateFormat="yy-mm-dd" [showIcon]="true" fluid
+                    styleClass="w-full"></p-datepicker>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="register-label">Płeć</label>
+                <div class="flex flex-wrap gap-4 mt-1">
+                    <div class="flex items-center">
+                        <p-radiobutton inputId="genderFemale" value="Kobieta" formControlName="gender" />
+                        <label for="genderFemale" class="ml-2">Kobieta</label>
+                    </div>
+                    <div class="flex items-center">
+                        <p-radiobutton inputId="genderMale" value="Mężczyzna" formControlName="gender" />
+                        <label for="genderMale" class="ml-2">Mężczyzna</label>
+                    </div>
+                    <div class="flex items-center">
+                        <p-radiobutton inputId="genderUnknown" value="Nieznana" formControlName="gender" />
+                        <label for="genderUnknown" class="ml-2">Nieznana</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 mt-2">
+                <div class="flex items-center">
+                    <p-checkbox inputId="terms" formControlName="termsAccepted" [binary]="true" />
+                    <label for="terms" class="terms-label ml-2 text-sm">Akceptuję regulamin <a href="#"
+                            class="terms-link">serwisu</a></label>
+                </div>
+            </div>
+
+            <p-button type="submit" label="Zarejestruj się" [disabled]="vm.form.invalid || vm.state.isLoading"
+                [loading]="vm.state.isLoading" icon="pi pi-user-plus" fluid />
+        </form>
+    </p-card>
+</div>

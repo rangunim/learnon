@@ -1,0 +1,86 @@
+.exam-summary-card {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: 1rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.exam-summary-card:hover {
+    border-color: var(--p-primary-300);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.exam-summary-index {
+    background-color: var(--p-surface-ground);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 900;
+    color: var(--p-text-muted-color);
+    transition: all 0.2s;
+}
+
+.group:hover .exam-summary-index {
+    background-color: var(--p-primary-50);
+    color: var(--p-primary-color);
+}
+
+.exam-summary-eng {
+    font-size: 1.125rem;
+    font-weight: 900;
+    color: var(--p-surface-900);
+    line-height: 1.25;
+}
+
+.exam-summary-pl {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--p-text-muted-color);
+    font-style: italic;
+}
+
+.exam-summary-edit-icon {
+    color: var(--p-text-muted-color);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.group:hover .exam-summary-edit-icon {
+    opacity: 1;
+}
+
+.exam-summary-footer {
+    background-color: rgba(var(--p-surface-ground-rgb, 245, 245, 245), 0.5);
+    border-radius: 1.5rem;
+    border: 1px solid var(--p-surface-border);
+}
+
+.exam-summary-prompt {
+    font-weight: 700;
+    color: var(--p-text-muted-color);
+}
+
+.exam-summary-btn-back {
+    font-weight: 700;
+}
+
+.exam-summary-btn-confirm {
+    font-weight: 900;
+    font-size: 1.125rem;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

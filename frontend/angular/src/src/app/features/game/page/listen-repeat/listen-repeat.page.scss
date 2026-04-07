@@ -1,0 +1,44 @@
+.lr-card-panel {
+    border-radius: 1.5rem;
+    box-shadow: var(--p-shadow-soft);
+    border: 1px solid var(--p-surface-border);
+    background: var(--p-surface-card);
+}
+
+.lr-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--p-text-color);
+    margin-bottom: 0.25rem;
+}
+
+.lr-subtitle {
+    color: var(--p-text-muted-color);
+}
+
+.lr-empty {
+    text-align: center;
+    background: var(--p-surface-ground);
+    border-radius: 1rem;
+    border: 2px dashed var(--p-surface-border);
+    color: var(--p-text-muted-color);
+}
+
+.lr-win-icon {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    font-size: 2.5rem;
+    background: var(--p-primary-500);
+    color: #ffffff;
+}
+
+.lr-win-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--p-text-color);
+}
+
+.lr-win-text {
+    color: var(--p-text-muted-color);
+}

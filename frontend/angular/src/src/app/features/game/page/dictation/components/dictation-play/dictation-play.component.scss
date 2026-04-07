@@ -1,0 +1,218 @@
+.dict-play-area {
+    background-color: var(--p-surface-ground);
+    border-radius: 1.5rem;
+    border: 1px solid var(--p-surface-border);
+}
+
+.dict-speaker-pill {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: 9999px;
+    box-shadow: var(--p-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.dict-speaker-label {
+    font-size: 0.625rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--p-text-muted-color);
+}
+
+.dict-visual-input {
+    font-size: 1.5rem;
+    font-weight: 900;
+    border-radius: 1rem;
+    border: 2px solid var(--p-surface-border);
+    background-color: var(--p-surface-card);
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    transition: all 0.3s;
+    cursor: text;
+}
+
+.dict-visual-input:hover {
+    border-color: var(--p-primary-400);
+}
+
+.dict-visual-input.is-correct {
+    border-color: rgb(34 197 94);
+    background-color: rgb(240 253 244);
+}
+
+.dict-char {
+    transition: color 0.2s;
+}
+
+.is-correct-char {
+    color: rgb(34 197 94);
+}
+
+.is-error-char {
+    color: rgb(239 68 68);
+    text-decoration: underline;
+    font-weight: 900;
+}
+
+.is-default-char {
+    color: var(--p-text-color);
+}
+
+.dict-success-icon {
+    font-size: 1.5rem;
+    color: rgb(34 197 94);
+}
+
+.dict-next-btn {
+    box-shadow: var(--p-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1)), 0 10px 15px -3px rgba(34, 197, 94, 0.3), 0 4px 6px -4px rgba(34, 197, 94, 0.3);
+}
+
+.dict-hint-box {
+    background-color: rgba(var(--p-primary-50-rgb, 239, 246, 255), 0.5);
+    border: 1px solid var(--p-primary-100);
+    border-radius: 0.75rem;
+}
+
+.dict-translation-box {
+    background-color: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgb(219 234 254);
+    border-radius: 0.75rem;
+}
+
+.dict-hint-label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--p-text-muted-color);
+}
+
+.dict-hint-text {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--p-primary-color);
+}
+
+.dict-translation-text {
+    font-size: 1.125rem;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.dict-lang-label {
+    font-size: 0.625rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--p-text-muted-color);
+}
+
+.dict-lang-badge {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-primary-color);
+    font-weight: bold;
+    font-size: 1.125rem;
+    border-radius: 0.75rem;
+    box-shadow: var(--p-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.dict-success-overlay {
+    background-color: rgba(34, 197, 94, 0.05);
+    pointer-events: none;
+}
+
+.dict-caret {
+    display: inline-block;
+    width: 3px;
+    height: 1.2em;
+    background-color: var(--p-primary-500);
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes caret-blink {
+
+    from,
+    to {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes pulse-soft {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--p-primary-rgb, 59, 130, 246), 0.4);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(var(--p-primary-rgb, 59, 130, 246), 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--p-primary-rgb, 59, 130, 246), 0);
+    }
+}
+
+.pulse-animation {
+    animation: pulse-soft 2s infinite;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+@keyframes bounce-custom {
+
+    0%,
+    100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+
+    50% {
+        transform: none;
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+.dict-animate-bounce {
+    animation: bounce-custom 1s infinite;
+}
+
+.dict-progress-bar {
+    border-radius: 9999px;
+    box-shadow: var(--p-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.dict-hidden-input {
+    opacity: 0;
+    pointer-events: none;
+    cursor: default;
+}
+
+.dict-actions-container {
+    transform: translateY(-50%);
+}
+
+.dict-lang-footer {
+    border-top: 1px solid var(--p-surface-border);
+}
