@@ -1,19 +1,20 @@
+@let vm = viewModel();
 <div class="quiz-results animate-fade-in text-center py-8">
     <div class="flex flex-col items-center mb-10">
-        <div class="quiz-win-icon mb-6" [class.quiz-win-icon--low]="score() < totalCount() / 2">
-            <i [class]="score() === totalCount() ? 'pi pi-star-fill' : 'pi pi-check-circle'"></i>
+        <div class="quiz-win-icon mb-6" [class.quiz-win-icon--low]="vm.state.score < vm.totalCount / 2">
+            <i [class]="vm.state.score === vm.totalCount ? 'pi pi-star-fill' : 'pi pi-check-circle'"></i>
         </div>
-        <h2 class="text-5xl font-black mb-2">{{ score() }} / {{ totalCount() }}</h2>
+        <h2 class="text-5xl font-black mb-2">{{ vm.state.score }} / {{ vm.totalCount }}</h2>
         <p class="text-xl text-muted-color">Poprawnych odpowiedzi</p>
     </div>
 
     <div class="flex justify-center mb-8">
-        <p-selectButton [options]="filterOptions" [ngModel]="currentFilter()"
-            (ngModelChange)="onFilterChange.emit($event)" optionLabel="label" optionValue="value" />
+        <p-selectButton [options]="filterOptions" [ngModel]="vm.state.currentFilter"
+            (ngModelChange)="handleFilterChange($event)" optionLabel="label" optionValue="value" />
     </div>
 
     <div class="flex flex-col gap-4 max-h-[400px] overflow-y-auto p-2 mb-10 text-left">
-        @for (item of filteredItems(); track item.card.id) {
+        @for (item of vm.filteredItems; track item.card.id) {
         <div class="quiz-result-item p-4 rounded-xl border-l-4" [class.quiz-result-item--correct]="item.isCorrect"
             [class.quiz-result-item--wrong]="!item.isCorrect">
             <div class="flex justify-between items-start mb-2">
@@ -36,7 +37,7 @@
     </div>
 
     <div class="flex gap-4 justify-center border-t border-surface-border pt-8">
-        <p-button (onClick)="onRestart.emit()" label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" />
-        <p-button [routerLink]="['/chapters', chapterId()]" label="Zakończ" [outlined]="true" severity="info" />
+        <p-button (onClick)="handleRestart()" label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" />
+        <p-button [routerLink]="['/chapters', vm.chapterId]" label="Zakończ" [outlined]="true" severity="info" />
     </div>
 </div>

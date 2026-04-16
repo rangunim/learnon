@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
-import { DictationViewModel } from '../../dictation.localstore';
+import { ResultViewModel } from '../../dictation.localstore';
 
 @Component({
   selector: 'app-dictation-result',
@@ -12,7 +12,7 @@ import { DictationViewModel } from '../../dictation.localstore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DictationResultComponent {
-  readonly viewModel = input.required<DictationViewModel>();
+  readonly viewModel = input.required<ResultViewModel>();
 
   readonly restart = output<void>();
 

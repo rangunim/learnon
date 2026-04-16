@@ -13,7 +13,6 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-quiz',
   imports: [
     RouterModule,
     Card,
@@ -33,14 +32,20 @@ import { TooltipModule } from 'primeng/tooltip';
 export class QuizPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly localstore = inject(QuizLocalStore);
+  private readonly localstore = inject(QuizLocalStore);
+
+  protected readonly rootViewModel = this.localstore.rootViewModel;
+  protected readonly questionViewModel = this.localstore.questionViewModel;
+  protected readonly summaryViewModel = this.localstore.summaryViewModel;
+  protected readonly resultViewModel = this.localstore.resultViewModel;
 
   constructor() {
     effect(() => {
-      // Trigger scroll on step or index change
-      const vm = this.localstore.viewModel();
-      const trigger = `${vm.state.currentStep}-${vm.state.currentIndex}`;
-      if (trigger) {
+      const root = this.localstore.rootViewModel();
+      const question = this.localstore.questionViewModel();
+      const trigger = `${root.state.currentStep}-${question.state.currentIndex}`;
+
+      if (trigger) { // Trigger scroll on step or index change
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });

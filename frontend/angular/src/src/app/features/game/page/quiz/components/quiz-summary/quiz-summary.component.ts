@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
-import { QuizItem } from '../../quiz.localstore';
+import { SummaryViewModel } from '../../quiz.localstore';
 
 @Component({
   selector: 'app-quiz-summary',
@@ -10,9 +10,21 @@ import { QuizItem } from '../../quiz.localstore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSummaryComponent {
-  readonly items = input.required<QuizItem[]>();
+  readonly viewModel = input.required<SummaryViewModel>();
 
   readonly onEditItem = output<number>();
   readonly onConfirm = output<void>();
   readonly onBack = output<void>();
+
+  protected handleEditItem(index: number): void {
+    this.onEditItem.emit(index);
+  }
+
+  protected handleConfirm(): void {
+    this.onConfirm.emit();
+  }
+
+  protected handleBack(): void {
+    this.onBack.emit();
+  }
 }

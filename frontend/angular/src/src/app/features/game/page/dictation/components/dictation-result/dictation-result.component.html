@@ -26,7 +26,7 @@
     <div class="flex gap-4 justify-center w-full max-w-md">
         <p-button label="Jeszcze raz" icon="pi pi-refresh" [raised]="true" [fluid]="true"
             styleClass="py-4 font-black text-lg" (onClick)="onRestart()" />
-        <p-button [routerLink]="['/chapters', vm.state.chapterId]" label="Zakończ" [outlined]="true" [fluid]="true"
+        <p-button [routerLink]="['/chapters', vm.chapterId]" label="Zakończ" [outlined]="true" [fluid]="true"
             severity="info" styleClass="py-4 font-bold" />
     </div>
 </div>

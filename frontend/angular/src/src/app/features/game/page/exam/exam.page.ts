@@ -1,20 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
-import { ExamLocalStore, ExamViewModel } from './exam.localstore';
+import { ExamLocalStore, ResultFilter } from './exam.localstore';
 import { ExamQuestionComponent } from './components/exam-question/exam-question.component';
 import { ExamSummaryComponent } from './components/exam-summary/exam-summary.component';
 import { ExamResultComponent } from './components/exam-result/exam-result.component';
 import { Dialog } from 'primeng/dialog';
 import { Stepper, StepList, Step } from 'primeng/stepper';
-import { Router } from '@angular/router';
-
 
 @Component({
-  selector: 'app-exam',
   imports: [
     RouterModule,
     Button,
@@ -36,13 +34,16 @@ import { Router } from '@angular/router';
 })
 export class ExamPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-
+  private readonly destroyRef = inject(DestroyRef);
   private readonly localstore = inject(ExamLocalStore);
-  protected readonly viewModel: Signal<ExamViewModel> = this.localstore.viewModel;
+
+  protected readonly rootViewModel = this.localstore.rootViewModel;
+  protected readonly questionViewModel = this.localstore.questionViewModel;
+  protected readonly summaryViewModel = this.localstore.summaryViewModel;
+  protected readonly resultViewModel = this.localstore.resultViewModel;
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.localstore.loadGame(id);
@@ -86,12 +87,11 @@ export class ExamPage implements OnInit {
     this.localstore.restartGame();
   }
 
+  protected handleSetFilter(filter: ResultFilter): void {
+    this.localstore.setResultFilter(filter);
+  }
+
   protected handleClose(): void {
-    const chapterId = this.localstore.viewModel().state.chapterId;
-    if (chapterId) {
-      this.router.navigate(['/chapters', chapterId]);
-    } else {
-      this.router.navigate(['/chapters']);
-    }
+    this.localstore.close();
   }
 }

@@ -13,15 +13,15 @@ export interface MemoryCard {
 }
 
 export interface MemoryGameState {
+    isLoading: boolean;
+    currentStep: 'PLAY' | 'RESULTS';
     chapterId: string | null;
     lang1: string;
     lang2: string;
-    isLoading: boolean;
     cards: MemoryCard[];
     movesCount: number;
     flippedCards: MemoryCard[];
     lockBoard: boolean;
-    currentStep: 'PLAY' | 'RESULTS';
 }
 
 export interface MemoryViewModel {
@@ -29,30 +29,29 @@ export interface MemoryViewModel {
     isGameWon: boolean;
 }
 
-
 const initialState: MemoryGameState = {
+    isLoading: true,
+    currentStep: 'PLAY',
     chapterId: null,
     lang1: 'Polski',
     lang2: 'Angielski',
-    isLoading: true,
     cards: [],
     movesCount: 0,
     flippedCards: [],
-    lockBoard: false,
-    currentStep: 'PLAY'
+    lockBoard: false
 };
 
 @Injectable()
 export class MemoryLocalStore {
     private readonly gamesStore = inject(GameStore);
     private readonly destroyRef = inject(DestroyRef);
+
     private readonly _state = signal<MemoryGameState>(initialState);
 
-    // Selectors
     public readonly viewModel = computed((): MemoryViewModel => {
         const s = this._state();
-        const cards = s.cards;
-        const isGameWon = cards.length > 0 && cards.every(c => c.isMatched);
+        const cards: MemoryCard[] = s.cards;
+        const isGameWon: boolean = cards.length > 0 && cards.every(c => c.isMatched);
 
         return {
             state: s,
@@ -60,14 +59,15 @@ export class MemoryLocalStore {
         };
     });
 
-    // Methods
     public loadGame(id: string): void {
         this._patch({ isLoading: true, chapterId: id });
+
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (chapter: Chapter) => {
                 const cards: MemoryCard[] = this.buildCards(chapter);
+
                 this._patch({
                     chapterId: chapter.id || null,
                     lang1: chapter.lang1 || 'Polski',
@@ -92,24 +92,9 @@ export class MemoryLocalStore {
     }
 
     public flipCard(card: MemoryCard): void {
-        const newState = this.handleFlipCard(this._state(), card);
-        this._state.set(newState);
-
-        if (newState.lockBoard) {
-            setTimeout(() => {
-                const state = this._state();
-                const [c1, c2] = state.flippedCards;
-                const cards: MemoryCard[] = state.cards.map(c =>
-                    c.id === c1.id || c.id === c2.id ? { ...c, isFlipped: false } : { ...c }
-                );
-                this._state.set(<MemoryGameState>{ ...state, cards, flippedCards: [], lockBoard: false });
-            }, 1000);
-        }
-    }
-
-    private handleFlipCard(state: MemoryGameState, card: MemoryCard): MemoryGameState {
+        const state = this._state();
         if (state.lockBoard || card.isFlipped || card.isMatched) {
-            return state;
+            return;
         }
 
         const cards = state.cards.map(c =>
@@ -128,26 +113,41 @@ export class MemoryLocalStore {
 
                 const isFinished = updatedCards.every(c => c.isMatched);
 
-                return {
-                    ...state,
+                this._patch({
                     cards: updatedCards,
                     movesCount: state.movesCount + 1,
                     flippedCards: [],
                     lockBoard: false,
                     currentStep: isFinished ? 'RESULTS' : state.currentStep
-                };
+                });
+            } else {
+                this._patch({
+                    cards,
+                    movesCount: state.movesCount + 1,
+                    flippedCards,
+                    lockBoard: true
+                });
+
+                // Auto reset lockboard
+                setTimeout(() => {
+                    const currentState = this._state();
+                    const [card1, card2] = currentState.flippedCards;
+                    if (!card1 || !card2) return;
+
+                    const resetCards: MemoryCard[] = currentState.cards.map(c =>
+                        c.id === card1.id || c.id === card2.id ? { ...c, isFlipped: false } : { ...c }
+                    );
+
+                    this._patch({
+                        cards: resetCards,
+                        flippedCards: [],
+                        lockBoard: false
+                    });
+                }, 1000);
             }
-
-            return {
-                ...state,
-                cards,
-                movesCount: state.movesCount + 1,
-                flippedCards,
-                lockBoard: true
-            };
+        } else {
+            this._patch({ cards, flippedCards });
         }
-
-        return { ...state, cards, flippedCards };
     }
 
     private _patch(patch: Partial<MemoryGameState>): void {

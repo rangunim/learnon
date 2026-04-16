@@ -6,21 +6,29 @@
             [class.flipped]="card.isFlipped || card.isMatched" (click)="onCardClick(card)">
 
             <!-- Front (Hidden side) -->
-            <div class="memory-card-side absolute inset-0 backface-hidden flex items-center justify-center p-2 rounded-xl shadow-sm border transition-colors"
-                [class]="card.type === 'lang1' ? 'bg-surface-600 border-surface-700 text-white' : 'bg-primary-600 border-primary-700 text-white'">
-                <i class="pi pi-question text-2xl opacity-40"></i>
-                <div class="absolute top-2 left-2 text-[10px] font-black uppercase opacity-30">
+            <div class="memory-card-side absolute inset-0 backface-hidden"
+                [class.card-front-lang1]="card.type === 'lang1'" [class.card-front-lang2]="card.type === 'lang2'">
+                <i class="pi pi-question text-5xl opacity-20 absolute"></i>
+                <div class="language-badge badge-front">
                     {{ card.type === 'lang1' ? vm.state.lang1.substring(0,2).toUpperCase() :
                     vm.state.lang2.substring(0,2).toUpperCase() }}
                 </div>
             </div>
 
             <!-- Back (Revealed side) -->
-            <div class="memory-card-side absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center p-3 text-center rounded-xl shadow-md border transition-all duration-300"
-                [class]="card.isMatched ? 'bg-green-500 border-green-600 text-white' : (card.type === 'lang1' ? 'bg-surface-card border-surface-border text-surface-900' : 'bg-surface-card border-surface-border text-primary-color')">
-                <span class="text-sm font-black break-words leading-tight">{{ card.text }}</span>
-                <div class="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-full text-[8px] font-black shadow-sm"
-                    [class]="card.isMatched ? 'bg-white/20 text-white' : (card.type === 'lang1' ? 'bg-surface-200 text-surface-700' : 'bg-primary-100 text-primary-700')">
+            <div class="memory-card-side absolute inset-0 backface-hidden rotate-y-180 text-center"
+                [class.card-back]="true" [class.card-back-lang1]="!card.isMatched && card.type === 'lang1'"
+                [class.card-back-lang2]="!card.isMatched && card.type === 'lang2'"
+                [class.card-back-matched]="card.isMatched">
+
+                @if (card.isMatched) {
+                <i class="pi pi-check absolute text-4xl opacity-10"></i>
+                }
+
+                <span class="text-sm font-black break-words leading-tight px-2 z-10">{{ card.text }}</span>
+
+                <div class="language-badge badge-back" [class.badge-back-matched]="card.isMatched"
+                    [class.badge-back-default]="!card.isMatched">
                     {{ card.type === 'lang1' ? vm.state.lang1.substring(0,2).toUpperCase() :
                     vm.state.lang2.substring(0,2).toUpperCase() }}
                 </div>

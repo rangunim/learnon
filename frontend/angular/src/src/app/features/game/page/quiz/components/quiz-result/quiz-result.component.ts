@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { QuizItem } from '../../quiz.localstore';
+import { ResultViewModel } from '../../quiz.localstore';
 
 @Component({
     selector: 'app-quiz-result',
@@ -13,11 +13,7 @@ import { QuizItem } from '../../quiz.localstore';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizResultComponent {
-    readonly score = input.required<number>();
-    readonly totalCount = input.required<number>();
-    readonly chapterId = input.required<string>();
-    readonly filteredItems = input.required<QuizItem[]>();
-    readonly currentFilter = input.required<'all' | 'correct' | 'wrong'>();
+    readonly viewModel = input.required<ResultViewModel>();
 
     readonly onRestart = output<void>();
     readonly onFilterChange = output<'all' | 'correct' | 'wrong'>();
@@ -27,4 +23,12 @@ export class QuizResultComponent {
         { label: 'Poprawne', value: 'correct' },
         { label: 'Błędne', value: 'wrong' }
     ];
+
+    protected handleRestart(): void {
+        this.onRestart.emit();
+    }
+
+    protected handleFilterChange(filter: 'all' | 'correct' | 'wrong'): void {
+        this.onFilterChange.emit(filter);
+    }
 }

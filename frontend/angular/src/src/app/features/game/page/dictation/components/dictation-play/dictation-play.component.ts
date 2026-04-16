@@ -3,7 +3,7 @@ import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressBar } from 'primeng/progressbar';
 import { WordPair } from '../../../../../chapter/model/chapter.model';
-import { DictationViewModel } from '../../dictation.localstore';
+import { PlayViewModel } from '../../dictation.localstore';
 
 @Component({
     selector: 'app-dictation-play',
@@ -13,7 +13,7 @@ import { DictationViewModel } from '../../dictation.localstore';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DictationPlayComponent {
-    readonly viewModel = input.required<DictationViewModel>();
+    readonly viewModel = input.required<PlayViewModel>();
 
     readonly nextWord = output<void>();
     readonly toggleTranslation = output<void>();
@@ -29,7 +29,7 @@ export class DictationPlayComponent {
         effect(() => {
             const currentWord: WordPair | null = this.viewModel().currentWord;
 
-            if (currentWord && this.viewModel().state.currentStep === 'PLAY') {
+            if (currentWord) {
                 untracked(() => {
                     setTimeout(() => this.inputEl()?.nativeElement.focus(), 300);
                 });

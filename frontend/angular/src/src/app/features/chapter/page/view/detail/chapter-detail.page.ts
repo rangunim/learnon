@@ -5,7 +5,6 @@ import { ChapterDetailViewComponent } from './components/chapter-detail-view.com
 import { ChapterDetailLocalStore } from './chapter-detail.localstore';
 
 @Component({
-  selector: 'app-chapter-detail',
   imports: [ChapterDetailViewComponent],
   providers: [ChapterDetailLocalStore],
   template: `

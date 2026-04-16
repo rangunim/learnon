@@ -1,8 +1,9 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Chapter } from '../../../model/chapter.model';
 import { ChapterStore } from '../../../chapter.store';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface ChapterDetailState {
     chapter: Chapter | null;
@@ -19,6 +20,7 @@ export class ChapterDetailLocalStore {
     private readonly router = inject(Router);
     private readonly confirmationService = inject(ConfirmationService);
     private readonly messageService = inject(MessageService);
+    private readonly destroyRef = inject(DestroyRef);
 
     private readonly _state = signal<ChapterDetailState>({
         chapter: null,
@@ -37,7 +39,9 @@ export class ChapterDetailLocalStore {
             chapter: globalCache || null
         }));
 
-        this.chapterStore.loadChapter(id).subscribe({
+        this.chapterStore.loadChapter(id).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: (chapter: Chapter) => this._state.set({ chapter, isLoading: false }),
             error: () => this._state.update(s => ({ ...s, isLoading: false }))
         });
@@ -53,7 +57,9 @@ export class ChapterDetailLocalStore {
             acceptButtonStyleClass: 'p-button-danger rounded-xl',
             rejectButtonStyleClass: 'p-button-text rounded-xl',
             accept: () => {
-                this.chapterStore.deleteChapter(id).subscribe({
+                this.chapterStore.deleteChapter(id).pipe(
+                    takeUntilDestroyed(this.destroyRef)
+                ).subscribe({
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Usunięto', detail: 'Rozdział został skasowany.' });
                         this.router.navigate(['/chapters']);
@@ -77,7 +83,9 @@ export class ChapterDetailLocalStore {
     }
 
     public shareChapter(chapter: Chapter): void {
-        this.chapterStore.toggleChapterPublicStatus(chapter.id, true).subscribe({
+        this.chapterStore.toggleChapterPublicStatus(chapter.id, true).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: (updated) => {
                 this._state.update(s => ({ ...s, chapter: updated }));
                 this.messageService.add({

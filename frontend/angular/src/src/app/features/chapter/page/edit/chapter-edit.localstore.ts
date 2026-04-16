@@ -1,10 +1,10 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ChapterUpdateRequest } from '../../model/chapter.dto';
 import { Chapter } from '../../model/chapter.model';
 import { Router } from '@angular/router';
 import { ChapterStore } from '../../chapter.store';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { FormArray, NonNullableFormBuilder, FormGroup, Validators } from '@angular/forms';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 export interface ChapterEditFormData {
@@ -34,20 +34,26 @@ export interface ChapterEditViewModel {
 export class ChapterEditLocalStore {
     private readonly chapterStore = inject(ChapterStore);
     private readonly router = inject(Router);
-    private readonly fb = inject(FormBuilder);
+    private readonly fb = inject(NonNullableFormBuilder);
+    private readonly destroyRef = inject(DestroyRef);
 
     private readonly _form: FormGroup = this.fb.group({
-        name: ['', Validators.required],
-        description: [''],
-        lang1: ['', Validators.required],
-        lang2: ['', Validators.required],
-        isPublic: [false],
+        name: this.fb.control('', Validators.required),
+        description: this.fb.control(''),
+        lang1: this.fb.control('', Validators.required),
+        lang2: this.fb.control('', Validators.required),
+        isPublic: this.fb.control(false),
         words: this.fb.array([])
     });
 
     private readonly _formChanges = toSignal(
         this._form.valueChanges,
         { initialValue: this._form.value }
+    );
+
+    private readonly _formStatus = toSignal(
+        this._form.statusChanges,
+        { initialValue: this._form.status }
     );
 
     private readonly _state = signal<ChapterEditState>({
@@ -59,16 +65,21 @@ export class ChapterEditLocalStore {
 
     public readonly viewModel = computed<ChapterEditViewModel>(() => {
         const s = this._state();
-        this._formChanges();
+        const status = this._formStatus();
+        this._formChanges(); // Wymusza odświeżenie widoku przy każdej zmianie wartości
 
         return {
             state: s,
             form: this._form,
-            isValid: this._form.valid,
-            canSubmit: this._form.valid && !s.isSaving,
+            isValid: status === 'VALID',
+            canSubmit: status === 'VALID' && !s.isSaving,
             submitLabel: s.isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'
         };
     });
+
+    public get words(): FormArray {
+        return this._form.get('words') as FormArray;
+    }
 
     public loadChapter(id: string): void {
         const globalCache = this.chapterStore.state().chapters.find((c: Chapter) => c.id === id);
@@ -80,7 +91,9 @@ export class ChapterEditLocalStore {
             initialData: globalCache || null
         }));
 
-        this.chapterStore.loadChapter(id).subscribe({
+        this.chapterStore.loadChapter(id).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: (chapter: Chapter) => {
                 this.patchFormWithData(chapter);
                 this._state.update(s => ({ ...s, initialData: chapter, isLoading: false }));
@@ -101,7 +114,9 @@ export class ChapterEditLocalStore {
 
         this._state.update(s => ({ ...s, isSaving: true }));
 
-        this.chapterStore.updateChapter(id, chapterData as ChapterUpdateRequest).subscribe({
+        this.chapterStore.updateChapter(id, chapterData as ChapterUpdateRequest).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: () => {
                 this._state.update(s => ({ ...s, isSaving: false }));
                 this.router.navigate(['/chapters', id]);
@@ -135,20 +150,16 @@ export class ChapterEditLocalStore {
 
         data.words.forEach((w: { pl: string; eng: string }) => {
             this.words.push(this.fb.group({
-                pl: [w.pl, Validators.required],
-                eng: [w.eng, Validators.required]
+                pl: this.fb.control(w.pl, Validators.required),
+                eng: this.fb.control(w.eng, Validators.required)
             }));
         });
     }
 
-    public get words(): FormArray {
-        return this._form.get('words') as FormArray;
-    }
-
     public addWord(): void {
         this.words.push(this.fb.group({
-            pl: ['', Validators.required],
-            eng: ['', Validators.required]
+            pl: this.fb.control('', Validators.required),
+            eng: this.fb.control('', Validators.required)
         }));
     }
 

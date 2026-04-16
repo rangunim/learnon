@@ -7,8 +7,6 @@ import { AuthStore } from '../../../core/stores/auth.store';
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({
-  selector: 'app-landing-page',
-  standalone: true,
   imports: [RouterModule, Button, Tag, NgOptimizedImage],
   templateUrl: './landing.page.html',
   styleUrl: './landing.page.scss',

@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
-import { ExamAnswer } from '../../exam.localstore';
-
-export type ResultFilter = 'ALL' | 'CORRECT' | 'INCORRECT';
+import { ResultViewModel, ResultFilter } from '../../exam.localstore';
 
 @Component({
     selector: 'app-exam-result',
@@ -14,47 +12,13 @@ export type ResultFilter = 'ALL' | 'CORRECT' | 'INCORRECT';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExamResultComponent {
-    readonly score = input.required<number>();
-    readonly totalCount = input.required<number>();
-    readonly chapterId = input.required<string>();
-    readonly answers = input.required<ExamAnswer[]>();
+    readonly viewModel = input.required<ResultViewModel>();
 
     readonly restart = output<void>();
+    readonly setFilter = output<ResultFilter>();
 
-    protected readonly Math = Math;
-    protected readonly activeFilter = signal<ResultFilter>('ALL');
-
-    protected readonly filteredAnswers = computed((): ExamAnswer[] => {
-        const filter = this.activeFilter();
-        const all = this.answers();
-        switch (filter) {
-            case 'CORRECT':
-                return all.filter(a => a.isCorrect);
-            case 'INCORRECT':
-                return all.filter(a => !a.isCorrect);
-            default:
-                return all;
-        }
-    });
-
-    protected readonly correctCount = computed((): number =>
-        this.answers().filter(a => a.isCorrect).length
-    );
-
-    protected readonly incorrectCount = computed((): number =>
-        this.answers().filter(a => !a.isCorrect).length
-    );
-
-    protected readonly scoreText = computed((): string =>
-        `${this.score()} / ${this.totalCount()}`
-    );
-
-    protected readonly percentText = computed((): string =>
-        `${Math.round((this.score() / this.totalCount()) * 100)}%`
-    );
-
-    protected setFilter(filter: ResultFilter): void {
-        this.activeFilter.set(filter);
+    protected setFilterEvent(filter: ResultFilter): void {
+        this.setFilter.emit(filter);
     }
 
     protected handleRestart(): void {

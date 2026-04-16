@@ -4,7 +4,7 @@ import { ToggleButton } from 'primeng/togglebutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressBar } from 'primeng/progressbar';
 import { FormsModule } from '@angular/forms';
-import { ListenRepeatViewModel } from '../../listen-repeat.localstore';
+import { PlayViewModel } from '../../listen-repeat.localstore';
 
 @Component({
     selector: 'app-lr-play',
@@ -14,7 +14,7 @@ import { ListenRepeatViewModel } from '../../listen-repeat.localstore';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LrPlayComponent {
-    readonly viewModel = input.required<ListenRepeatViewModel>();
+    readonly viewModel = input.required<PlayViewModel>();
 
     readonly nextWord = output<void>();
     readonly toggleAutoListen = output<void>();

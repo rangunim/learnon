@@ -11,7 +11,8 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:report": "npx playwright show-report",
     "test:e2e:coverage": "cross-env COVERAGE=true npx playwright test && npx nyc report --reporter=html --reporter=text-summary",
-    "build:mfe": "ng build && node build-mfe.js"
+    "build:mfe": "ng build && node build-mfe.js",
+    "test:arch": "npx playwright test"
   },
   "private": true,
   "type": "module",
@@ -41,7 +42,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@angular-builders/custom-esbuild": "^21.0.3",
+    "@angular-builders/custom-esbuild": "21.0.3",
     "@angular/build": "21.2.1",
     "@angular/cli": "21.2.1",
     "@angular/compiler-cli": "21.2.1",
@@ -53,8 +54,9 @@
     "@types/dom-speech-recognition": "0.0.9",
     "@types/node": "25.3.5",
     "@types/papaparse": "5.5.2",
-    "cross-env": "^10.1.0",
-    "esbuild-plugin-istanbul": "^0.3.0",
+    "archunit": "2.1.69",
+    "cross-env": "10.1.0",
+    "esbuild-plugin-istanbul": "0.3.0",
     "json-server": "1.0.0-beta.12",
     "nyc": "18.0.0",
     "postcss": "8.5.8",

@@ -13,7 +13,6 @@ import { TooltipModule } from 'primeng/tooltip';
 
 
 @Component({
-  selector: 'app-listen-repeat',
   imports: [
     RouterModule,
     Button,
@@ -35,28 +34,40 @@ export class ListenRepeatPage implements OnInit {
   private readonly store = inject(ListenRepeatLocalStore);
   private readonly speechService = inject(SpeechService);
 
-  readonly viewModel = computed<ListenRepeatViewModel>(() => ({
-    ...this.store.viewModel(),
-    isListening: this.speechService.isListening()
-  }));
+  readonly viewModel = computed<ListenRepeatViewModel>(() => {
+    const baseVm = this.store.viewModel();
+    const isListening = this.speechService.isListening();
+
+    if (baseVm.play) {
+      return {
+        ...baseVm,
+        play: {
+          ...baseVm.play,
+          isListening
+        }
+      };
+    }
+    return baseVm;
+  });
 
   constructor() {
-    const wordId = computed(() => this.viewModel().currentWord?.id);
-    const isFinished = computed(() => this.viewModel().state.isFinished);
-    const isCorrect = computed(() => this.viewModel().state.isCorrect);
+    const wordId = computed(() => this.viewModel().play?.currentWord?.id);
+    const isFinished = computed(() => this.viewModel().currentStep === 'RESULTS');
+    const isCorrect = computed(() => this.viewModel().play?.isCorrect ?? null);
 
     effect((onCleanup) => {
       const id = wordId();
       const vm = this.viewModel();
 
-      if (!id || vm.state.currentStep !== 'PLAY' || isFinished() || isCorrect() !== null) return;
+      if (!id || vm.currentStep !== 'PLAY' || isFinished() || isCorrect() !== null || !vm.play) return;
 
       this.store.playAudio();
 
-      if (vm.state.autoListen) {
+      if (vm.play.autoListen) {
         const timer = setTimeout(() => {
           untracked(() => {
-            if (this.viewModel().state.isCorrect === null && !this.speechService.isListening()) {
+            const currentVm = this.viewModel();
+            if (currentVm.play?.isCorrect === null && !this.speechService.isListening()) {
               this.store.startListening();
             }
           });
@@ -78,12 +89,12 @@ export class ListenRepeatPage implements OnInit {
   }
 
   protected handleEnter(): void {
-    const vm = { ...this.store.viewModel(), isListening: this.speechService.isListening() };
-    if (vm.state.isFinished) return;
+    const vm = this.viewModel();
+    if (vm.currentStep === 'RESULTS') return;
 
-    if (vm.state.isCorrect === true) {
+    if (vm.play?.isCorrect === true) {
       this.nextWord();
-    } else if (!vm.isListening) {
+    } else if (!vm.play?.isListening) {
       this.startListening();
     }
   }

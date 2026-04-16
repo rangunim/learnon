@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { MemoryLocalStore, MemoryViewModel } from './memory.localstore';
+import { MemoryLocalStore } from './memory.localstore';
 import { MemoryGridComponent } from './components/memory-grid/memory-grid.component';
 import { MemoryResultComponent } from './components/memory-result/memory-result.component';
 import { Button } from 'primeng/button';
@@ -11,7 +11,6 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-memory',
   imports: [
     RouterModule,
     Button,
@@ -28,7 +27,9 @@ import { RouterModule } from '@angular/router';
 export class MemoryPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly store = inject(MemoryLocalStore);
+  private readonly localstore = inject(MemoryLocalStore);
+
+  protected readonly viewModel = this.localstore.viewModel;
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -36,16 +37,16 @@ export class MemoryPage implements OnInit {
     ).subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.store.loadGame(id);
+        this.localstore.loadGame(id);
       }
     });
   }
 
   protected handleFlipCard(card: any): void {
-    this.store.flipCard(card);
+    this.localstore.flipCard(card);
   }
 
   protected handleRestart(): void {
-    this.store.restartGame();
+    this.localstore.restartGame();
   }
 }

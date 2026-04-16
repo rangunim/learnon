@@ -1,11 +1,11 @@
-@let vm = viewModel();
+@let root = rootViewModel();
 
 <p-dialog [visible]="true" [modal]="true" [closable]="true" [draggable]="false" [resizable]="false"
     [style]="{ width: '100%', maxWidth: '850px' }" [breakpoints]="{ '960px': '95vw' }" (onHide)="handleClose()"
     class="exam-dialog">
     <ng-template pTemplate="header">
         <div class="flex flex-col w-full pr-8">
-            <p-stepper [value]="vm.stepIndex" class="exam-stepper">
+            <p-stepper [value]="root.stepIndex" class="exam-stepper">
                 <p-step-list class="flex justify-between w-full">
                     <p-step [value]="0">Pytania</p-step>
                     <p-step [value]="1">Arkusz</p-step>
@@ -19,14 +19,14 @@
         <div class="mb-6 flex justify-between items-start">
             <div>
                 <h1 class="exam-title mb-1 leading-tight">
-                    @switch (vm.state.currentStep) {
+                    @switch (root.currentStep) {
                     @case ('QUESTIONS') { Egzamin }
                     @case ('SUMMARY') { Arkusz odpowiedzi }
                     @case ('RESULTS') { Twój wynik }
                     }
                 </h1>
                 <p class="exam-subtitle">
-                    @switch (vm.state.currentStep) {
+                    @switch (root.currentStep) {
                     @case ('QUESTIONS') { Przepisz wyświetlone słowo. }
                     @case ('SUMMARY') { Sprawdź odpowiedzi przed zatwierdzeniem. }
                     @case ('RESULTS') { Zobacz jak Ci poszło! }
@@ -35,13 +35,14 @@
             </div>
 
             <div class="flex items-center gap-3">
-                @if (vm.state.currentStep === 'QUESTIONS') {
-                <p-tag [value]="vm.counterText" severity="info" [rounded]="true" />
+                @if (root.currentStep === 'QUESTIONS') {
+                @let question = questionViewModel();
+                <p-tag [value]="question.counterText" severity="info" [rounded]="true" />
                 <p-button (onClick)="handleToggleDirection()" icon="pi pi-sync" [rounded]="true" [text]="true"
                     severity="secondary" pTooltip="Zamień kierunek" />
                 <p-button icon="pi pi-list" [text]="true" severity="warn" pTooltip="Pokaż arkusz"
                     (onClick)="handleForceSummary()" />
-                } @else if (vm.state.currentStep === 'SUMMARY') {
+                } @else if (root.currentStep === 'SUMMARY') {
                 <p-tag value="Podsumowanie" severity="warn" [rounded]="true" />
                 } @else {
                 <p-tag value="Wyniki" severity="success" [rounded]="true" />
@@ -50,27 +51,29 @@
         </div>
 
         <div class="exam-main-panel min-h-[300px]">
-            @if (vm.state.isLoading) {
+            @if (root.isLoading) {
             <div class="flex justify-center items-center py-20">
                 <p-progressspinner />
             </div>
-            } @else if (vm.totalCount === 0) {
+            } @else if (root.totalCount === 0) {
             <div class="exam-empty text-center p-16">
                 <p>Brak fiszek w tym rozdziale.</p>
             </div>
             } @else {
-            @switch (vm.state.currentStep) {
+            @switch (root.currentStep) {
             @case ('QUESTIONS') {
-            <app-exam-question [viewModel]="vm" (submit)="handleSubmit()" (validate)="handleUpdateInput($event)"
+            @let question = questionViewModel();
+            <app-exam-question [viewModel]="question" (submit)="handleSubmit()" (validate)="handleUpdateInput($event)"
                 (skip)="handleSkip()" />
             }
             @case ('SUMMARY') {
-            <app-exam-summary [cards]="vm.state.cards" (editItem)="handleGoToItem($event)" (confirm)="handleConfirm()"
-                (back)="handleBack()" [direction]="vm.state.direction" />
+            @let summary = summaryViewModel();
+            <app-exam-summary [viewModel]="summary" (editItem)="handleGoToItem($event)" (confirm)="handleConfirm()"
+                (back)="handleBack()" />
             }
             @case ('RESULTS') {
-            <app-exam-result [score]="vm.state.score" [totalCount]="vm.totalCount" [answers]="vm.state.answers"
-                [chapterId]="vm.state.chapterId || ''" (restart)="handleRestart()" />
+            <app-exam-result [viewModel]="resultViewModel()" (restart)="handleRestart()"
+                (setFilter)="handleSetFilter($event)" />
             }
             }
             }

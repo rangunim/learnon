@@ -9,7 +9,6 @@ import { MarketplacePage } from '../marketplace/marketplace.page';
 import { Chapter } from '../../../model/chapter.model';
 
 @Component({
-  selector: 'app-chapters-list',
   imports: [RouterModule, ChapterCardComponent, Button, ProgressSpinner, InputText, MarketplacePage],
   providers: [ChaptersListLocalStore],
   templateUrl: './chapters-list.page.html',

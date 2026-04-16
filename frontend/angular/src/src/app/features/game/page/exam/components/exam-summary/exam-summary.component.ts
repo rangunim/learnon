@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
-import { TranslationDirection } from '../../exam.localstore';
+import { SummaryViewModel } from '../../exam.localstore';
 import { WordPair } from '../../../../../chapter/model/chapter.model';
 
 @Component({
@@ -11,8 +11,7 @@ import { WordPair } from '../../../../../chapter/model/chapter.model';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExamSummaryComponent {
-    readonly cards = input.required<WordPair[]>();
-    readonly direction = input.required<TranslationDirection>();
+    readonly viewModel = input.required<SummaryViewModel>();
 
     readonly editItem = output<number>();
     readonly confirm = output<void>();
@@ -31,6 +30,6 @@ export class ExamSummaryComponent {
     }
 
     protected sourceWord(card: WordPair): string {
-        return this.direction() === 'toLang2' ? card.pl : card.eng;
+        return this.viewModel().direction === 'toLang2' ? card.pl : card.eng;
     }
 }

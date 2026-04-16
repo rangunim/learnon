@@ -3,6 +3,8 @@ import { RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
 
+import { ResultViewModel } from '../../listen-repeat.localstore';
+
 @Component({
   selector: 'app-lr-result',
   imports: [RouterModule, Button, Tag],
@@ -11,8 +13,7 @@ import { Tag } from 'primeng/tag';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LrResultComponent {
-  readonly totalCount = input.required<number>();
-  readonly chapterId = input.required<string>();
+  readonly viewModel = input.required<ResultViewModel>();
 
   readonly restart = output<void>();
 

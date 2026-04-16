@@ -85,6 +85,24 @@
       "password": "aaaa",
       "birthDate": "2026-04-07T22:00:00.000Z",
       "gender": "Kobieta"
+    },
+    {
+      "id": "txenbh9",
+      "email": "test.e2e.1776336128060@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-03-31T22:00:00.000Z",
+      "gender": "Nieznana"
+    },
+    {
+      "id": "h39aefq",
+      "email": "test.e2e.1776336908139@learnon.com",
+      "firstName": "Anna",
+      "lastName": "Nowak",
+      "password": "TestPass123",
+      "birthDate": "2026-03-31T22:00:00.000Z",
+      "gender": "Nieznana"
     }
   ],
   "chapters": [

@@ -10,9 +10,9 @@ Features should be organized by domain under `src/app/features/`.
 - `model/`: Domain models (`[feature].model.ts`) and API DTOs (`[feature].dto.ts`).
 - `page/`: Container components representing major views (e.g., `create`, `edit`, `view`).
     - Sub-views like `list` and `detail` should be nested within `view/`.
+    - `[feature].routes.ts`: Lazy-loaded routes for the feature, lives here alongside the page components.
 - `[feature].service.ts`: Handles all HTTP communication and data mapping.
 - `[feature].store.ts`: Global domain state management for the feature.
-- `[feature].routes.ts`: Lazy-loaded routes for the feature.
 
 ### Naming Conventions
 - **Pages (Containers)**: `[name].page.ts`, `[name].page.html`, `[name].page.scss`.
@@ -29,55 +29,96 @@ Features should be organized by domain under `src/app/features/`.
 2. **LocalStore (Component-specific)**: Provided at the component level (`providers: [LocalStore]`). Manages state local to a single view (e.g., form current values, search queries, pagination, local loading flags).
 
 ### ViewModel Pattern
+
 - Every page component should use a **ViewModel**.
 - The `ViewModel` is a signal computed from the `LocalStore` state.
 - Component templates should rely **only** on the `viewModel` input to render.
 - **Goal**: Logic resides in the Store/LocalStore; components remain thin.
 
-```typescript
-// LocalStore realization
-export interface MyState {
-    items: Item[];
-    isLoading: boolean;
-}
+#### Simple ViewModel (single-view features)
 
-export interface MyViewModel {
-    state: MyState;
-    hasItems: boolean;
-}
+For simple views with a single state and a single presentation component:
+
+```typescript
+// LocalStore
+export interface MyState { items: Item[]; isLoading: boolean; }
+export interface MyViewModel { hasItems: boolean; isLoading: boolean; }
 
 @Injectable()
 export class MyLocalStore {
     private readonly _state = signal<MyState>({ items: [], isLoading: false });
-    
+
     public readonly viewModel = computed<MyViewModel>(() => {
         const s = this._state();
-        return {
-            state: s,
-            hasItems: s.items.length > 0
-        };
+        return { state: s, hasItems: s.items.length > 0, isLoading: s.isLoading };
     });
 }
 
-// Dumb Component realization
-@Component({
-  selector: 'app-my-view',
-  imports: [CommonModule],
-  template: `
-    @let vm = viewModel();
-    @if(vm.hasItems) { ... }
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
+// Dumb Component
 export class MyViewComponent {
     // Inputs/Outputs MUST NOT be protected. They are public API.
     readonly viewModel = input.required<MyViewModel>();
     readonly onAction = output<void>();
 
     // Template-bound methods MUST be protected.
-    protected doAction(): void {
-        this.onAction.emit();
-    }
+    protected doAction(): void { this.onAction.emit(); }
+}
+```
+
+#### Multi-Step ViewModel (features with sub-steps, e.g. games, wizards)
+
+For views composed of distinct steps (`PLAY → RESULTS`, wizards, etc.), where each presentational component needs its own precise slice of data.
+
+**Rules:**
+- Split state into **Signal Slices** — each slice owns a single domain (`_config`, `_play`, `_result`).
+- Expose **one `computed()` per step** (`rootViewModel`, `playViewModel`, `resultViewModel`). No raw state leaks outward.
+- Dumb Components receive only their dedicated ViewModel — never the full state.
+- Mutations target only the relevant slice: `this._play.update(p => ({ ...p, isCorrect: true }))`.
+- Page Components expose LocalStore signals as `protected readonly` — the template never references `localstore` directly.
+
+```typescript
+// ─── State Slices ──────────────────────────────────────────────
+export interface ConfigState  { chapter: Chapter | null; words: WordPair[]; isSwapped: boolean; }
+export interface PlayState    { currentIndex: number; isCorrect: boolean | null; }
+export interface ResultState  { score: number; }
+
+// ─── ViewModels per step ───────────────────────────────────────
+export interface RootViewModel   { state: ConfigState, isLoading: boolean; currentStep: 'PLAY' | 'RESULTS'; totalCount: number; }
+export interface PlayViewModel   { state: PlayState, targetText: string; progress: number; }
+export interface ResultViewModel { state: ResultState, scoreText: string; percentText: string; chapterId: string | null; }
+
+@Injectable()
+export class MyLocalStore {
+    private readonly _meta   = signal<{ isLoading: boolean; currentStep: 'PLAY' | 'RESULTS' }>({ isLoading: false, currentStep: 'PLAY' });
+    private readonly _config = signal<ConfigState>(initialConfig);
+    private readonly _play   = signal<PlayState>(initialPlay);
+    private readonly _result = signal<ResultState>(initialResult);
+
+    public readonly rootViewModel   = computed((): RootViewModel   => { /* reads _meta + _config */ });
+    public readonly playViewModel   = computed((): PlayViewModel   => { /* reads _config + _play */ });
+    public readonly resultViewModel = computed((): ResultViewModel => { /* reads _config + _result */ });
+}
+
+// Page Component
+export class MyPage {
+    private readonly localstore = inject(MyLocalStore);
+
+    protected readonly rootViewModel   = this.localstore.rootViewModel;
+    protected readonly playViewModel   = this.localstore.playViewModel;
+    protected readonly resultViewModel = this.localstore.resultViewModel;
+}
+```
+
+```html
+<!-- Template: zero direct localstore references -->
+@let root = rootViewModel();
+
+@if (root.currentStep === 'PLAY') {
+    @let play = playViewModel();
+    <app-my-play [viewModel]="play" (next)="next()" />
+}
+@if (root.currentStep === 'RESULTS') {
+    <app-my-result [viewModel]="resultViewModel()" (restart)="restart()" />
 }
 ```
 

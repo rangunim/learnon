@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ProgressBar } from 'primeng/progressbar';
-import { ExamViewModel } from '../../exam.localstore';
+import { QuestionViewModel } from '../../exam.localstore';
 
 @Component({
     selector: 'app-exam-question',
@@ -13,7 +13,9 @@ import { ExamViewModel } from '../../exam.localstore';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExamQuestionComponent {
-    readonly viewModel = input.required<ExamViewModel>();
+    private readonly destroyRef = inject(DestroyRef);
+
+    readonly viewModel = input.required<QuestionViewModel>();
 
     readonly submit = output<void>();
     readonly validate = output<string>();
@@ -21,7 +23,6 @@ export class ExamQuestionComponent {
 
     protected readonly answerCtrl = new FormControl('');
     private readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('inputEl');
-    private readonly destroyRef = inject(DestroyRef);
 
     constructor() {
         this.answerCtrl.valueChanges.pipe(
@@ -32,7 +33,7 @@ export class ExamQuestionComponent {
 
         // Sync control value if changed from store (e.g. word change)
         effect(() => {
-            const val = this.viewModel().state.currentInput;
+            const val = this.viewModel().currentInput;
             untracked(() => {
                 if (this.answerCtrl.value !== val) {
                     this.answerCtrl.setValue(val, { emitEvent: false });
@@ -42,7 +43,7 @@ export class ExamQuestionComponent {
 
         // Focus input on new word or mount
         effect(() => {
-            const word = this.viewModel().currentSourceWord;
+            const word = this.viewModel().sourceWord;
             if (word) {
                 untracked(() => {
                     setTimeout(() => this.inputEl()?.nativeElement.focus(), 300);

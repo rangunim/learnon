@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
 import { ChapterCreateViewComponent } from './components/chapter-create-view/chapter-create-view.component';
 import { ChapterCreateLocalStore, ChapterCreateViewModel } from './chapter-create.localstore';
 
 @Component({
-  selector: 'app-chapter-create',
   imports: [ChapterCreateViewComponent],
   providers: [ChapterCreateLocalStore],
   template: `
@@ -17,9 +16,14 @@ import { ChapterCreateLocalStore, ChapterCreateViewModel } from './chapter-creat
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChapterCreatePage {
+export class ChapterCreatePage implements OnInit {
   private readonly localstore = inject(ChapterCreateLocalStore);
   protected readonly viewModel: Signal<ChapterCreateViewModel> = this.localstore.viewModel;
+
+  public ngOnInit(): void {
+    this.localstore.addWord();
+    this.localstore.addWord();
+  }
 
   protected handleAddWord(): void {
     this.localstore.addWord();

@@ -40,9 +40,7 @@ export class ChapterCreateViewComponent {
   }
 
   protected submit(): void {
-    if (this.viewModel().isValid) {
-      this.onSave.emit();
-    }
+    this.onSave.emit();
   }
 
   protected filterLanguages(event: any): void {

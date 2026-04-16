@@ -1,9 +1,11 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { GameStore } from '../../game.store';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Chapter, WordPair } from '../../../chapter/model/chapter.model';
 
 export type TranslationDirection = 'toLang2' | 'toLang1';
+export type ResultFilter = 'ALL' | 'CORRECT' | 'INCORRECT';
 
 export interface ExamAnswer {
     card: WordPair;
@@ -13,206 +15,313 @@ export interface ExamAnswer {
     isCorrect: boolean;
 }
 
-export interface ExamState {
+export interface ExamMetaState {
+    isLoading: boolean;
+    currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
+}
+
+export interface ExamConfigState {
     chapterId: string | null;
     chapter: Chapter | null;
-    isLoading: boolean;
     lang1: string;
     lang2: string;
     cards: WordPair[];
-    currentIndex: number;
-    score: number;
     direction: TranslationDirection;
-    currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
-    currentInput: string;
-    answers: ExamAnswer[];
 }
 
-export interface ExamViewModel {
-    state: ExamState;
+export interface RootViewModel {
+    isLoading: boolean;
+    currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
+    stepIndex: number;
     totalCount: number;
-    currentSourceWord: string;
-    currentTargetWord: string;
+    chapterId: string | null;
+}
+
+
+export interface ExamPlayState {
+    currentIndex: number;
+    currentInput: string;
+}
+
+export interface QuestionViewModel {
+    sourceWord: string;
+    targetWord: string;
     sourceLang: string;
     targetLang: string;
-    progress: number;
+    progressPercent: number;
     counterText: string;
     isSubmitDisabled: boolean;
-    stepIndex: number;
+    currentInput: string;
 }
 
 
-const initialState: ExamState = {
+export interface SummaryViewModel {
+    answers: ExamAnswer[];
+    cards: WordPair[];
+    direction: TranslationDirection;
+}
+
+export interface ExamResultState {
+    score: number;
+    answers: ExamAnswer[];
+    filter: ResultFilter;
+}
+
+export interface ResultViewModel {
+    filter: ResultFilter;
+    filteredAnswers: ExamAnswer[];
+    correctCount: number;
+    incorrectCount: number;
+    totalAnswersCount: number;
+    scoreText: string;
+    percentText: string;
+    chapterId: string | null;
+}
+
+const initialMeta: ExamMetaState = {
+    isLoading: true,
+    currentStep: 'QUESTIONS'
+};
+
+const initialConfig: ExamConfigState = {
     chapterId: null,
     chapter: null,
-    isLoading: true,
     lang1: 'PL',
     lang2: 'EN',
     cards: [],
+    direction: 'toLang2'
+};
+
+const initialPlay: ExamPlayState = {
     currentIndex: 0,
+    currentInput: ''
+};
+
+const initialResult: ExamResultState = {
     score: 0,
-    direction: 'toLang2',
-    currentStep: 'QUESTIONS',
-    currentInput: '',
-    answers: []
+    answers: [],
+    filter: 'ALL'
 };
 
 @Injectable()
 export class ExamLocalStore {
     private readonly gamesStore = inject(GameStore);
+    private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
-    private readonly _state = signal<ExamState>(initialState);
 
-    public readonly viewModel = computed((): ExamViewModel => {
-        const s = this._state();
-        const cards = s.cards;
-        const totalCount = cards.length;
-        const currentCard = cards[s.currentIndex];
+    private readonly _meta = signal<ExamMetaState>(initialMeta);
+    private readonly _config = signal<ExamConfigState>(initialConfig);
+    private readonly _play = signal<ExamPlayState>(initialPlay);
+    private readonly _result = signal<ExamResultState>(initialResult);
 
-        const sourceWord = currentCard ? (s.direction === 'toLang2' ? currentCard.pl : currentCard.eng) : '';
-        const targetWord = currentCard ? (s.direction === 'toLang2' ? currentCard.eng : currentCard.pl) : '';
+    public readonly rootViewModel = computed((): RootViewModel => {
+        const meta = this._meta();
+        const config = this._config();
+        const stepIndex = meta.currentStep === 'QUESTIONS' ? 0
+            : meta.currentStep === 'SUMMARY' ? 1 : 2;
 
         return {
-            state: s,
-            totalCount,
-            currentSourceWord: sourceWord,
-            currentTargetWord: targetWord,
-            sourceLang: s.direction === 'toLang2' ? s.lang1 : s.lang2,
-            targetLang: s.direction === 'toLang2' ? s.lang2 : s.lang1,
-            progress: totalCount > 0 ? Math.floor((s.currentIndex / totalCount) * 100) : 0,
-            counterText: `${s.currentIndex + 1} / ${totalCount}`,
-            isSubmitDisabled: !s.currentInput.trim(),
-            stepIndex: s.currentStep === 'QUESTIONS' ? 0 : (s.currentStep === 'SUMMARY' ? 1 : 2)
+            isLoading: meta.isLoading,
+            currentStep: meta.currentStep,
+            stepIndex,
+            totalCount: config.cards.length,
+            chapterId: config.chapterId
         };
-    })
+    });
+
+    public readonly questionViewModel = computed((): QuestionViewModel => {
+        const config = this._config();
+        const play = this._play();
+        const cards = config.cards;
+        const total = cards.length;
+        const index = play.currentIndex;
+        const card = cards[index];
+
+        const sourceWord = card ? (config.direction === 'toLang2' ? card.pl : card.eng) : '';
+        const targetWord = card ? (config.direction === 'toLang2' ? card.eng : card.pl) : '';
+
+        return {
+            sourceWord,
+            targetWord,
+            sourceLang: config.direction === 'toLang2' ? config.lang1 : config.lang2,
+            targetLang: config.direction === 'toLang2' ? config.lang2 : config.lang1,
+            progressPercent: total > 0 ? Math.floor((index / total) * 100) : 0,
+            counterText: `${index + 1} / ${total}`,
+            isSubmitDisabled: !play.currentInput.trim(),
+            currentInput: play.currentInput
+        };
+    });
+
+    public readonly summaryViewModel = computed((): SummaryViewModel => {
+        const config = this._config();
+        const result = this._result();
+
+        return {
+            answers: result.answers,
+            cards: config.cards,
+            direction: config.direction
+        };
+    });
+
+    public readonly resultViewModel = computed((): ResultViewModel => {
+        const config = this._config();
+        const result = this._result();
+        const total = config.cards.length;
+        const correctCount = result.answers.filter(a => a.isCorrect).length;
+        const incorrectCount = result.answers.filter(a => !a.isCorrect).length;
+
+        const filteredAnswers =
+            result.filter === 'CORRECT' ? result.answers.filter(a => a.isCorrect) :
+                result.filter === 'INCORRECT' ? result.answers.filter(a => !a.isCorrect) :
+                    result.answers;
+
+        return {
+            filter: result.filter,
+            filteredAnswers: filteredAnswers,
+            correctCount: correctCount,
+            incorrectCount: incorrectCount,
+            totalAnswersCount: result.answers.length,
+            scoreText: `${result.score} / ${total}`,
+            percentText: total > 0 ? `${Math.round((result.score / total) * 100)}%` : '0%',
+            chapterId: config.chapterId
+        };
+    });
 
     public loadGame(id: string): void {
-        this._patch({ isLoading: true, chapterId: id });
+        this._meta.update(m => ({ ...m, isLoading: true }));
+        this._config.update(c => ({ ...c, chapterId: id }));
+
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (chapter: Chapter) => {
-                const shuffledWords = [...chapter.words].sort(() => Math.random() - 0.5);
-                this._patch({
+                const shuffledCards = [...chapter.words].sort(() => Math.random() - 0.5);
+                this._meta.set({ isLoading: false, currentStep: 'QUESTIONS' });
+                this._config.set({
                     chapterId: chapter.id || null,
-                    chapter: chapter,
-                    isLoading: false,
+                    chapter,
                     lang1: chapter.lang1 || 'PL',
                     lang2: chapter.lang2 || 'EN',
-                    cards: shuffledWords,
-                    currentIndex: 0,
-                    score: 0,
-                    direction: 'toLang2',
-                    currentStep: 'QUESTIONS',
-                    currentInput: '',
-                    answers: []
+                    cards: shuffledCards,
+                    direction: 'toLang2'
                 });
+                this._play.set(initialPlay);
+                this._result.set(initialResult);
             },
-            error: () => this._patch({ isLoading: false })
+            error: () => this._meta.update(m => ({ ...m, isLoading: false }))
         });
     }
 
     public toggleDirection(): void {
-        this._patch({
-            direction: this._state().direction === 'toLang2' ? 'toLang1' : 'toLang2'
-        });
+        this._config.update(c => ({
+            ...c,
+            direction: c.direction === 'toLang2' ? 'toLang1' : 'toLang2'
+        }));
+    }
+
+    public setResultFilter(filter: ResultFilter): void {
+        this._result.update(r => ({ ...r, filter: filter }));
     }
 
     public updateInput(val: string): void {
-        this._patch({ currentInput: val });
+        this._play.update(p => ({ ...p, currentInput: val }));
     }
 
     public submitAnswer(): void {
-        const s = this._state();
-        const currentCard = s.cards[s.currentIndex];
-        const userVal = s.currentInput.trim().toLowerCase();
-        if (!userVal) return;
+        const config = this._config();
+        const play = this._play();
+        const card = config.cards[play.currentIndex];
+        const userVal = play.currentInput.trim().toLowerCase();
+        if (!userVal || !card) return;
 
-        const vm = this.viewModel();
-        const targetVal = vm.currentTargetWord.trim().toLowerCase();
-        const isCorrect = userVal === targetVal;
+        const targetWord = config.direction === 'toLang2' ? card.eng : card.pl;
+        const sourceWord = config.direction === 'toLang2' ? card.pl : card.eng;
+        const isCorrect = userVal === targetWord.trim().toLowerCase();
 
-        this._recordAnswer(currentCard, s.currentInput, isCorrect, vm);
+        this._recordAnswer(card, sourceWord, targetWord, play.currentInput, isCorrect);
     }
 
     public skip(): void {
-        const s = this._state();
-        const currentCard = s.cards[s.currentIndex];
-        const vm = this.viewModel();
+        const config = this._config();
+        const play = this._play();
+        const card = config.cards[play.currentIndex];
+        if (!card) return;
 
-        this._recordAnswer(currentCard, '', false, vm);
+        const targetWord = config.direction === 'toLang2' ? card.eng : card.pl;
+        const sourceWord = config.direction === 'toLang2' ? card.pl : card.eng;
+
+        this._recordAnswer(card, sourceWord, targetWord, '', false);
     }
 
-    private _recordAnswer(card: WordPair, userAnswer: string, isCorrect: boolean, vm: ExamViewModel): void {
-        const s = this._state();
-        const nextIndex = s.currentIndex + 1;
-        const newScore = isCorrect ? s.score + 1 : s.score;
+    private _recordAnswer(
+        card: WordPair,
+        sourceWord: string,
+        targetWord: string,
+        userAnswer: string,
+        isCorrect: boolean
+    ): void {
+        const config = this._config();
+        const play = this._play();
+        const result = this._result();
+        const nextIndex = play.currentIndex + 1;
+        const newScore = isCorrect ? result.score + 1 : result.score;
 
-        const newAnswer: ExamAnswer = {
-            card,
-            sourceWord: vm.currentSourceWord,
-            targetWord: vm.currentTargetWord,
-            userAnswer,
-            isCorrect
-        };
-        const updatedAnswers = [...s.answers, newAnswer];
+        const newAnswer: ExamAnswer = { card, sourceWord, targetWord, userAnswer, isCorrect };
+        const updatedAnswers = [...result.answers, newAnswer];
 
-        if (nextIndex >= s.cards.length) {
-            this._patch({
-                currentIndex: nextIndex,
-                score: newScore,
-                currentStep: 'SUMMARY',
-                currentInput: '',
-                answers: updatedAnswers
-            });
+        this._result.update(r => ({ ...r, score: newScore, answers: updatedAnswers }));
+
+        if (nextIndex >= config.cards.length) {
+            this._meta.update(m => ({ ...m, currentStep: 'SUMMARY' }));
+            this._play.update(p => ({ ...p, currentIndex: nextIndex, currentInput: '' }));
         } else {
-            this._patch({
-                currentIndex: nextIndex,
-                score: newScore,
-                currentInput: '',
-                answers: updatedAnswers
-            });
+            this._play.update(p => ({ ...p, currentIndex: nextIndex, currentInput: '' }));
         }
     }
 
     public nextStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'SUMMARY') {
-            this._patch({ currentStep: 'RESULTS' });
+        if (this._meta().currentStep === 'SUMMARY') {
+            this._meta.update(m => ({ ...m, currentStep: 'RESULTS' }));
         }
     }
 
     public prevStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'QUESTIONS') {
-            if (s.currentIndex > 0) {
-                this._patch({ currentIndex: s.currentIndex - 1, currentInput: '' });
+        const meta = this._meta();
+        const play = this._play();
+
+        if (meta.currentStep === 'QUESTIONS') {
+            if (play.currentIndex > 0) {
+                this._play.update(p => ({ ...p, currentIndex: p.currentIndex - 1, currentInput: '' }));
             }
-        } else if (s.currentStep === 'SUMMARY') {
-            this._patch({ currentStep: 'QUESTIONS', currentIndex: s.cards.length - 1 });
+        } else if (meta.currentStep === 'SUMMARY') {
+            const lastIndex = this._config().cards.length - 1;
+            this._meta.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
+            this._play.update(p => ({ ...p, currentIndex: lastIndex }));
         }
     }
 
     public forceSummary(): void {
-        this._patch({ currentStep: 'SUMMARY' });
+        this._meta.update(m => ({ ...m, currentStep: 'SUMMARY' }));
     }
 
     public goToItem(index: number): void {
-        this._patch({
-            currentIndex: index,
-            currentStep: 'QUESTIONS',
-            currentInput: ''
-        });
+        this._meta.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
+        this._play.update(p => ({ ...p, currentIndex: index, currentInput: '' }));
     }
 
     public restartGame(): void {
-        const id = this._state().chapterId;
+        const id = this._config().chapterId;
         if (id) {
             this.loadGame(id);
         }
     }
 
-    private _patch(patch: Partial<ExamState>): void {
-        this._state.update(s => ({ ...s, ...patch }));
+    public close(): void {
+        const id = this._config().chapterId;
+        if (id) {
+            this.router.navigate(['/chapters', id]);
+        } else {
+            this.router.navigate(['/chapters']);
+        }
     }
 }

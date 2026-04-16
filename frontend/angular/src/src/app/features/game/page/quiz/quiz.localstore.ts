@@ -20,209 +20,275 @@ export interface QuizItem {
     selectedOptionText?: string;
 }
 
-export interface QuizGameState {
+export interface QuizRootState {
     chapterId: string | null;
     isLoading: boolean;
     lang1: string;
     lang2: string;
-    items: QuizItem[];
-    score: number;
     direction: 'toLang2' | 'toLang1';
     currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
+}
+
+export interface QuizQuestionState {
+    items: QuizItem[];
     currentIndex: number;
 }
 
-export interface QuizViewModel {
-    state: QuizGameState;
-    chapterId: string; // Override to be non-nullable in VM
-    filteredItems: QuizItem[];
+export interface QuizResultState {
+    score: number;
     currentFilter: 'all' | 'correct' | 'wrong';
-    totalCount: number;
-    answeredCount: number;
-    sourceLang: string;
-    targetLang: string;
-    progress: number;
-    canFinish: boolean;
-    currentItem: QuizItem | null;
 }
 
-const initialState: QuizGameState = {
+export interface RootViewModel {
+    state: QuizRootState;
+    chapterId: string;
+    sourceLang: string;
+    targetLang: string;
+}
+
+export interface QuestionViewModel {
+    state: QuizQuestionState;
+    currentItem: QuizItem | null;
+    totalCount: number;
+    progress: number;
+}
+
+export interface SummaryViewModel {
+    items: QuizItem[];
+    answeredCount: number;
+    totalCount: number;
+    canFinish: boolean;
+}
+
+export interface ResultViewModel {
+    state: QuizResultState;
+    totalCount: number;
+    filteredItems: QuizItem[];
+    chapterId: string;
+}
+
+const initialRoot: QuizRootState = {
     chapterId: null,
     isLoading: true,
     lang1: 'PL',
     lang2: 'EN',
-    items: [],
-    score: 0,
     direction: 'toLang2',
-    currentStep: 'QUESTIONS',
+    currentStep: 'QUESTIONS'
+};
+
+const initialQuestion: QuizQuestionState = {
+    items: [],
     currentIndex: 0
+};
+
+const initialResult: QuizResultState = {
+    score: 0,
+    currentFilter: 'all'
 };
 
 @Injectable()
 export class QuizLocalStore {
     private readonly gamesStore = inject(GameStore);
     private readonly destroyRef = inject(DestroyRef);
-    private readonly _state = signal<QuizGameState>(initialState);
 
-    // Filter signal for summary view
-    private readonly _currentFilter = signal<'all' | 'correct' | 'wrong'>('all');
+    private readonly _root = signal<QuizRootState>(initialRoot);
+    private readonly _question = signal<QuizQuestionState>(initialQuestion);
+    private readonly _result = signal<QuizResultState>(initialResult);
 
-    // Selectors
-    public readonly viewModel = computed((): QuizViewModel => {
-        const s = this._state();
-        const filter = this._currentFilter();
+    public readonly rootViewModel = computed((): RootViewModel => {
+        const root = this._root();
+        return {
+            state: root,
+            chapterId: root.chapterId || '',
+            sourceLang: root.direction === 'toLang2' ? root.lang1 : root.lang2,
+            targetLang: root.direction === 'toLang2' ? root.lang2 : root.lang1,
+        };
+    });
 
-        // Enrich items with selected option text once
-        const enrichedItems: QuizItem[] = s.items.map((item: QuizItem) => ({
+    public readonly questionViewModel = computed((): QuestionViewModel => {
+        const root = this._root();
+        const question = this._question();
+        const totalCount = question.items.length;
+
+        return {
+            state: question,
+            currentItem: question.items[question.currentIndex] || null,
+            totalCount,
+            progress: totalCount > 0 ? Math.floor(((question.currentIndex + (root.currentStep === 'QUESTIONS' ? 0 : 1)) / totalCount) * 100) : 0,
+        };
+    });
+
+    public readonly summaryViewModel = computed((): SummaryViewModel => {
+        const question = this._question();
+
+        const enrichedItems: QuizItem[] = question.items.map((item: QuizItem) => ({
             ...item,
             selectedOptionText: item.options.find((o: QuizOption) => o.id === item.selectedOptionId)?.text || 'Brak odpowiedzi'
         }));
 
         const totalCount = enrichedItems.length;
-        const answeredCount = enrichedItems.filter((i: QuizItem) => i.isAnswered).length;
-
-        const filteredItems = filter === 'all'
-            ? enrichedItems
-            : enrichedItems.filter((i: QuizItem) => filter === 'correct' ? i.isCorrect : !i.isCorrect);
+        const answeredCount = enrichedItems.filter(i => i.isAnswered).length;
 
         return {
-            state: s,
-            chapterId: s.chapterId || '',
-            filteredItems,
-            currentFilter: filter,
+            items: enrichedItems,
             totalCount,
             answeredCount,
-            sourceLang: s.direction === 'toLang2' ? s.lang1 : s.lang2,
-            targetLang: s.direction === 'toLang2' ? s.lang2 : s.lang1,
-            progress: totalCount > 0 ? Math.floor(((s.currentIndex + (s.currentStep === 'QUESTIONS' ? 0 : 1)) / totalCount) * 100) : 0,
-            canFinish: totalCount > 0 && answeredCount === totalCount,
-            currentItem: enrichedItems[s.currentIndex] || null
+            canFinish: totalCount > 0 && answeredCount === totalCount
         };
     });
 
-    // Methods
+    public readonly resultViewModel = computed((): ResultViewModel => {
+        const root = this._root();
+        const question = this._question();
+        const result = this._result();
+
+        const filter = result.currentFilter;
+
+        const enrichedItems: QuizItem[] = question.items.map((item: QuizItem) => ({
+            ...item,
+            selectedOptionText: item.options.find((o: QuizOption) => o.id === item.selectedOptionId)?.text || 'Brak odpowiedzi'
+        }));
+
+        const filteredItems = filter === 'all'
+            ? enrichedItems
+            : enrichedItems.filter(i => filter === 'correct' ? i.isCorrect : !i.isCorrect);
+
+        return {
+            state: result,
+            totalCount: enrichedItems.length,
+            filteredItems,
+            chapterId: root.chapterId || ''
+        };
+    });
+
     public loadGame(id: string): void {
-        this._patch({ isLoading: true, chapterId: id });
+        this._root.update(r => ({ ...r, isLoading: true, chapterId: id }));
+
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (chapter: Chapter) => {
                 const words = chapter.words || [];
                 const shuffled = this.shuffle([...words]);
-
-                // direction is 'toLang2' by default
                 const items = shuffled.map(card => this.createQuizItem(card, shuffled, 'toLang2'));
 
-                const newState: Partial<QuizGameState> = {
+                this._root.update(r => ({
+                    ...r,
                     chapterId: chapter.id,
                     isLoading: false,
                     lang1: chapter.lang1 || 'PL',
                     lang2: chapter.lang2 || 'EN',
-                    items: items,
-                    score: 0,
                     direction: 'toLang2',
-                    currentStep: 'QUESTIONS',
+                    currentStep: 'QUESTIONS'
+                }));
+
+                this._question.set({
+                    items,
                     currentIndex: 0
-                };
-                this._patch(newState)
+                });
+
+                this._result.set(initialResult);
             },
-            error: () => this._patch({ isLoading: false })
+            error: () => this._root.update(r => ({ ...r, isLoading: false }))
         });
     }
 
     public restartGame(): void {
-        const id = this._state().chapterId;
+        const id = this._root().chapterId;
         if (id) {
             this.loadGame(id);
         }
     }
 
     public setFilter(filter: 'all' | 'correct' | 'wrong'): void {
-        this._currentFilter.set(filter);
+        this._result.update(r => ({ ...r, currentFilter: filter }));
     }
 
     public toggleDirection(): void {
-        const s = this._state();
-        const newDir = s.direction === 'toLang2' ? 'toLang1' : 'toLang2';
+        const root = this._root();
+        const question = this._question();
 
-        const newItems = s.items.map(item =>
-            this.createQuizItem(item.card, s.items.map(i => i.card), newDir)
+        const newDir = root.direction === 'toLang2' ? 'toLang1' : 'toLang2';
+
+        const newItems = question.items.map(item =>
+            this.createQuizItem(item.card, question.items.map(i => i.card), newDir)
         );
 
-        this._patch({
-            direction: newDir,
-            items: newItems
-        });
+        this._root.update(r => ({ ...r, direction: newDir }));
+        this._question.update(q => ({ ...q, items: newItems }));
     }
 
     public selectOption(optionId: string): void {
-        const s = this._state();
-        if (s.currentStep !== 'QUESTIONS') return;
+        const root = this._root();
+        if (root.currentStep !== 'QUESTIONS') return;
 
-        const itemIndex: number = s.currentIndex;
-        const currentItems: QuizItem[] = [...s.items];
-        const item: QuizItem = { ...currentItems[itemIndex] };
+        const question = this._question();
+        const itemIndex = question.currentIndex;
+        const currentItems = [...question.items];
+        const item = { ...currentItems[itemIndex] };
 
         if (item.selectedOptionId === optionId) return;
 
-        const option: QuizOption | undefined = item.options.find(o => o.id === optionId);
+        const option = item.options.find(o => o.id === optionId);
         item.selectedOptionId = optionId;
         item.isAnswered = true;
         item.isCorrect = option?.isCorrect ?? false;
 
         currentItems[itemIndex] = item;
-        this._patch({ items: currentItems });
-
-        // Auto move to next if not last? 
-        // Maybe auto-advance is good for UX, but let's stick to buttons first or small delay.
+        this._question.update(q => ({ ...q, items: currentItems }));
     }
 
     public nextStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'QUESTIONS') {
-            if (s.currentIndex < s.items.length - 1) {
-                this._patch({ currentIndex: s.currentIndex + 1 });
+        const root = this._root();
+        const question = this._question();
+
+        if (root.currentStep === 'QUESTIONS') {
+            if (question.currentIndex < question.items.length - 1) {
+                this._question.update(q => ({ ...q, currentIndex: q.currentIndex + 1 }));
             } else {
-                this._patch({ currentStep: 'SUMMARY' });
+                this._root.update(r => ({ ...r, currentStep: 'SUMMARY' }));
             }
-        } else if (s.currentStep === 'SUMMARY') {
-            this._patch({ currentStep: 'RESULTS' });
+        } else if (root.currentStep === 'SUMMARY') {
+            // Calculate final score when entering RESULTS
+            const score = question.items.filter(i => i.isCorrect).length;
+            this._result.update(r => ({ ...r, score }));
+            this._root.update(r => ({ ...r, currentStep: 'RESULTS' }));
         }
     }
 
     public prevStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'QUESTIONS') {
-            if (s.currentIndex > 0) {
-                this._patch({ currentIndex: s.currentIndex - 1 });
+        const root = this._root();
+        const question = this._question();
+
+        if (root.currentStep === 'QUESTIONS') {
+            if (question.currentIndex > 0) {
+                this._question.update(q => ({ ...q, currentIndex: q.currentIndex - 1 }));
             }
-        } else if (s.currentStep === 'SUMMARY') {
-            this._patch({ currentStep: 'QUESTIONS', currentIndex: s.items.length - 1 });
+        } else if (root.currentStep === 'SUMMARY') {
+            this._root.update(r => ({ ...r, currentStep: 'QUESTIONS' }));
+            this._question.update(q => ({ ...q, currentIndex: question.items.length - 1 }));
         }
     }
 
     public goToStep(index: number): void {
-        this._patch({ currentStep: 'QUESTIONS', currentIndex: index });
+        this._root.update(r => ({ ...r, currentStep: 'QUESTIONS' }));
+        this._question.update(q => ({ ...q, currentIndex: index }));
     }
 
     public forceSummary(): void {
-        this._patch({ currentStep: 'SUMMARY' });
-    }
-
-    private _patch(patch: Partial<QuizGameState>): void {
-        this._state.update(s => ({ ...s, ...patch }));
+        this._root.update(r => ({ ...r, currentStep: 'SUMMARY' }));
     }
 
     private createQuizItem(card: WordPair, allCards: WordPair[], direction: 'toLang2' | 'toLang1'): QuizItem {
         const isToLang2 = direction === 'toLang2';
-        const question = isToLang2 ? card.pl : card.eng;
-        const correctAnswer = isToLang2 ? card.eng : card.pl;
+        const questionText = isToLang2 ? card.pl : card.eng;
+        const correctAnswerText = isToLang2 ? card.eng : card.pl;
         const options = this.generateOptions(card, allCards, direction);
 
         return {
             card,
-            question,
-            correctAnswer,
+            question: questionText,
+            correctAnswer: correctAnswerText,
             options,
             selectedOptionId: null,
             isAnswered: false,

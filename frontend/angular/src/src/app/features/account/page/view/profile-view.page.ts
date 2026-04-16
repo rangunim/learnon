@@ -5,7 +5,6 @@ import { Button } from 'primeng/button';
 import { ProfileViewLocalStore, ProfileViewViewModel } from './profile-view.localstore';
 
 @Component({
-    selector: 'app-profile-view',
     imports: [RouterModule, Button, DatePipe],
     providers: [ProfileViewLocalStore],
     templateUrl: './profile-view.page.html',

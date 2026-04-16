@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ProgressBar } from 'primeng/progressbar';
-import { QuizItem } from '../../quiz.localstore';
+import { QuestionViewModel } from '../../quiz.localstore';
 
 @Component({
   selector: 'app-quiz-question',
@@ -11,12 +11,21 @@ import { QuizItem } from '../../quiz.localstore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent {
-  readonly item = input.required<QuizItem | null>();
-  readonly currentIndex = input.required<number>();
-  readonly totalCount = input.required<number>();
-  readonly progress = input.required<number>();
+  readonly viewModel = input.required<QuestionViewModel>();
 
   readonly selectOption = output<string>();
   readonly next = output<void>();
   readonly prev = output<void>();
+
+  protected onNext(): void {
+    this.next.emit();
+  }
+
+  protected onPrev(): void {
+    this.prev.emit();
+  }
+
+  protected onSelectOption(optionId: string): void {
+    this.selectOption.emit(optionId);
+  }
 }

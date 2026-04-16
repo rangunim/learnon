@@ -5,7 +5,6 @@ import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'app-memory-result',
-  standalone: true,
   imports: [RouterModule, Button, Tag],
   templateUrl: './memory-result.component.html',
   styleUrl: './memory-result.component.scss',

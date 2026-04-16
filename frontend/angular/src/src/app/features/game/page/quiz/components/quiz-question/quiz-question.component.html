@@ -1,24 +1,25 @@
-@if (item()) {
+@let vm = viewModel();
+@if (vm.currentItem) {
 <div class="quiz-question-container animate-fade-in">
     <!-- Progress Bar -->
     <div class="mb-8">
-        <p-progressbar [value]="progress()" [showValue]="false" styleClass="h-1.5 rounded-full"></p-progressbar>
+        <p-progressbar [value]="vm.progress" [showValue]="false" styleClass="h-1.5 rounded-full"></p-progressbar>
     </div>
 
     <!-- Question Header -->
     <div class="flex items-center gap-4 mb-8">
-        <span class="quiz-question-number">{{ currentIndex() + 1 }}</span>
-        <span class="quiz-question-text flex-1">{{ item()?.question }}</span>
+        <span class="quiz-question-number">{{ vm.state.currentIndex + 1 }}</span>
+        <span class="quiz-question-text flex-1">{{ vm.currentItem.question }}</span>
     </div>
 
     <!-- Options Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-        @for (option of item()?.options; track option.id) {
+        @for (option of vm.currentItem.options; track option.id) {
         <button class="quiz-option-btn flex items-center justify-between p-4"
-            [class.quiz-option--selected]="item()?.selectedOptionId === option.id"
-            (click)="selectOption.emit(option.id)">
+            [class.quiz-option--selected]="vm.currentItem.selectedOptionId === option.id"
+            (click)="onSelectOption(option.id)">
             <span class="text-lg">{{ option.text }}</span>
-            @if (item()?.selectedOptionId === option.id) {
+            @if (vm.currentItem.selectedOptionId === option.id) {
             <i class="pi pi-check-circle text-xl animate-scale-in"></i>
             }
         </button>
@@ -27,15 +28,15 @@
 
     <!-- Navigation -->
     <div class="flex justify-between items-center py-4 border-t border-surface-border mt-8">
-        <p-button label="Poprzednie" icon="pi pi-chevron-left" [text]="true" [disabled]="currentIndex() === 0"
+        <p-button label="Poprzednie" icon="pi pi-chevron-left" [text]="true" [disabled]="vm.state.currentIndex === 0"
             (onClick)="prev.emit()" />
 
-        @if (currentIndex()
-        < totalCount() - 1) { <p-button label="Następne" icon="pi pi-chevron-right" iconPos="right" [raised]="true"
-            [disabled]="!item()?.isAnswered" (onClick)="next.emit()" />
+        @if (vm.state.currentIndex
+        < vm.totalCount - 1) { <p-button label="Następne" icon="pi pi-chevron-right" iconPos="right" [raised]="true"
+            [disabled]="!vm.currentItem.isAnswered" (onClick)="onNext()" />
         } @else {
         <p-button label="Podsumowanie" icon="pi pi-list" iconPos="right" [severity]="'warn'" [raised]="true"
-            [disabled]="!item()?.isAnswered" (onClick)="next.emit()" />
+            [disabled]="!vm.currentItem.isAnswered" (onClick)="onNext()" />
         }
     </div>
 </div>

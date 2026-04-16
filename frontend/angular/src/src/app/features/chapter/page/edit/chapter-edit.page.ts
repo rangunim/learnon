@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChapterEditViewComponent } from './components/chapter-edit/chapter-edit-view.component';
-import { ChapterEditLocalStore } from './chapter-edit.localstore';
+import { ChapterEditLocalStore, ChapterEditViewModel } from './chapter-edit.localstore';
 
 @Component({
-    selector: 'app-chapter-edit',
     imports: [ChapterEditViewComponent],
     providers: [ChapterEditLocalStore],
     template: `
@@ -20,8 +19,8 @@ import { ChapterEditLocalStore } from './chapter-edit.localstore';
 })
 export class ChapterEditPage implements OnInit {
     private readonly route: ActivatedRoute = inject(ActivatedRoute);
-    protected readonly localstore = inject(ChapterEditLocalStore);
-    protected readonly viewModel = this.localstore.viewModel;
+    private readonly localstore = inject(ChapterEditLocalStore);
+    protected readonly viewModel: Signal<ChapterEditViewModel> = this.localstore.viewModel;
 
     public ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');

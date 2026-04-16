@@ -12,7 +12,6 @@ import { DictationResultComponent } from './components/dictation-result/dictatio
 
 
 @Component({
-  selector: 'app-dictation',
   imports: [
     RouterModule,
     Button,
@@ -31,18 +30,21 @@ import { DictationResultComponent } from './components/dictation-result/dictatio
 export class DictationPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly localstore = inject(DictationLocalStore);
+  private readonly localstore = inject(DictationLocalStore);
+
+  protected readonly rootViewModel = this.localstore.rootViewModel;
+  protected readonly playViewModel = this.localstore.playViewModel;
+  protected readonly resultViewModel = this.localstore.resultViewModel;
 
   constructor() {
     // Auto-play audio on new word
-    const currentIndex = computed(() => this.localstore.viewModel().state.currentIndex);
-    const currentStep = computed(() => this.localstore.viewModel().state.currentStep);
-
+    const currentIndex = computed(() => this.playViewModel().state.currentIndex);
+    const currentStep = computed(() => this.rootViewModel().state.currentStep);
     effect(() => {
       const index = currentIndex();
-      const step = currentStep();
+      const stepValue = currentStep();
 
-      if (step === 'PLAY') {
+      if (stepValue === 'PLAY' && index !== undefined) {
         untracked(() => this.localstore.playAudio());
       }
     });

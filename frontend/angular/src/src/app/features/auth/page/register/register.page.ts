@@ -12,8 +12,6 @@ import { RadioButton } from 'primeng/radiobutton';
 import { Checkbox } from 'primeng/checkbox';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
   imports: [ReactiveFormsModule, RouterModule, Button, InputText, Password, Card, Message, DatePicker, RadioButton, Checkbox],
   providers: [RegisterLocalStore],
   templateUrl: './register.page.html',

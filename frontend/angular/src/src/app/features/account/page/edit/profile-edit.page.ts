@@ -6,7 +6,6 @@ import { Password } from 'primeng/password';
 import { ProfileEditLocalStore, ProfileEditViewModel } from './profile-edit.localstore';
 
 @Component({
-    selector: 'app-profile-edit',
     imports: [ReactiveFormsModule, RouterModule, Button, Password],
     providers: [ProfileEditLocalStore],
     templateUrl: './profile-edit.page.html',

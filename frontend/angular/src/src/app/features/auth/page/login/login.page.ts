@@ -10,7 +10,6 @@ import { Card } from 'primeng/card';
 import { Message } from 'primeng/message';
 
 @Component({
-  selector: 'app-login',
   imports: [ReactiveFormsModule, RouterModule, Button, InputText, Password, Card, Message],
   providers: [LoginLocalStore],
   templateUrl: './login.page.html',

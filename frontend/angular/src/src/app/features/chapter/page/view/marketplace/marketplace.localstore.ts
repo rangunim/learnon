@@ -1,8 +1,9 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { Chapter } from '../../../model/chapter.model';
 import { ChapterStore } from '../../../chapter.store';
 import { AuthStore } from '../../../../../core/stores/auth.store';
 import { MessageService } from 'primeng/api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface PublicChapterCard {
     chapter: Chapter;
@@ -32,6 +33,7 @@ export class MarketplaceLocalStore {
     private readonly chapterStore = inject(ChapterStore);
     private readonly authStore = inject(AuthStore);
     private readonly messageService = inject(MessageService);
+    private readonly destroyRef = inject(DestroyRef);
 
     private readonly _state = signal<MarketplaceState>({
         publicChapters: [],
@@ -80,7 +82,9 @@ export class MarketplaceLocalStore {
     public loadPublicChapters(query?: string): void {
         this._state.update(s => ({ ...s, isLoading: true, searchQuery: query || '' }));
 
-        this.chapterStore.getPublicChapters(query).subscribe({
+        this.chapterStore.getPublicChapters(query).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: (chapters) => {
                 this._state.update(s => ({
                     ...s,
@@ -103,7 +107,9 @@ export class MarketplaceLocalStore {
     }
 
     public importChapter(chapter: Chapter): void {
-        this.chapterStore.importFromPublic(chapter).subscribe({
+        this.chapterStore.importFromPublic(chapter).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',

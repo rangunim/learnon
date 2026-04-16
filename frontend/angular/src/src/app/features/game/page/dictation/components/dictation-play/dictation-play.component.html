@@ -23,13 +23,12 @@
 
                 <!-- Visual representation -->
                 <div (click)="focusInput()"
-                    class="dict-visual-input flex justify-center flex-wrap gap-1.5 p-6 min-h-[5rem] text-center"
-                    [class.is-correct]="vm.isVisualCorrect">
+                    class="dict-visual-input flex justify-center flex-wrap gap-1.5 p-6 min-h-[5rem] text-center">
 
-                    @for (charState of vm.charStates; track $index) {
-                    <span class="dict-char inline-block min-w-[0.5ch]" [class.is-correct-char]="charState.isCorrect"
-                        [class.is-error-char]="charState.isError" [class.is-default-char]="charState.isDefault">
-                        {{ charState.char }}
+                    @for (charView of vm.charViews; track $index) {
+                    <span class="dict-char inline-block min-w-[0.5ch]" [class.is-correct-char]="charView.isCorrect"
+                        [class.is-error-char]="charView.isError" [class.is-default-char]="charView.isDefault">
+                        {{ charView.char }}
                     </span>
                     }
 
@@ -37,8 +36,6 @@
                     <span class="dict-caret"></span>
                     }
                 </div>
-
-
             </div>
 
             @if (vm.state.showHint) {
@@ -71,9 +68,5 @@
                 {{ vm.languageLabel }}
             </div>
         </div>
-
-        @if (vm.showSuccessOverlay) {
-        <div class="dict-success-overlay absolute inset-0 animate-fade-in"></div>
-        }
     </div>
 </div>

@@ -4,75 +4,89 @@ import { GameStore } from '../../game.store';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpeechService } from '../../../../core/services/speech.service';
 
-export interface DictationState {
-    chapterId: string;
-    chapter: Chapter | null;
+export interface DictationRootState {
     isLoading: boolean;
-    currentIndex: number;
+    currentStep: 'PLAY' | 'RESULTS';
+    chapter: Chapter | null;
     words: WordPair[];
-    score: number;
+    isSwapped: boolean;
+    highlightErrors: boolean;
+}
+
+export interface RootViewModel {
+    state: DictationRootState;
+    chapterId: string | null;
+    totalCount: number;
+}
+
+export interface DictationPlayState {
+    currentIndex: number;
+    currentInput: string;
     isCorrect: boolean | null;
     showHint: boolean;
     errorIndex: number;
-    isSwapped: boolean;
     showTranslation: boolean;
-    currentInput: string;
-    currentStep: 'PLAY' | 'RESULTS';
-    highlightErrors: boolean;
     wasHintUsed: boolean;
 }
 
-export interface CharState {
+export interface PlayViewModel {
+    state: DictationPlayState;
+    currentWord: WordPair | null;
+    targetText: string;
+    progress: number;
+    hintText: string;
+    charViews: CharView[];
+    isPrevDisabled: boolean;
+    isNextDisabled: boolean;
+    isTranslationDisabled: boolean;
+    isGiveUpDisabled: boolean;
+    translationIcon: string;
+    showTranslationBox: boolean;
+    languageLabel: string;
+    counterText: string;
+}
+
+export interface CharView {
     char: string;
     isCorrect: boolean;
     isError: boolean;
     isDefault: boolean;
 }
 
-export interface DictationViewModel {
-    state: DictationState;
-    totalCount: number;
-    currentWord: WordPair | null;
-    targetText: string;
-    targetLangCode: string;
-    lang1: string;
-    lang2: string;
-    progress: number;
-    hintText: string;
-    charStates: CharState[];
-    // UI Properties aggregated from components
-    isPrevDisabled: boolean;
-    isNextDisabled: boolean;
-    counterText: string;
-    highlightSeverity: 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined;
-    isTranslationDisabled: boolean;
-    isGiveUpDisabled: boolean;
-    translationIcon: string;
-    isVisualCorrect: boolean;
-    showSuccessOverlay: boolean;
-    nextButtonClass: string;
-    showTranslationBox: boolean;
-    languageLabel: string;
-    scoreText: string;
-    percentText: string;
+export interface DictationResultState {
+    score: number;
 }
 
-export const initialState: DictationState = {
-    chapterId: '',
+export interface ResultViewModel {
+    state: DictationResultState;
+    totalCount: number;
+    scoreText: string;
+    percentText: string;
+    chapterId: string | null;
+}
+
+
+const initialRoot: DictationRootState = {
     chapter: null,
-    isLoading: false,
-    currentIndex: 0,
     words: [],
-    score: 0,
+    isSwapped: false,
+    isLoading: false,
+    currentStep: 'PLAY',
+    highlightErrors: false
+};
+
+const initialPlay: DictationPlayState = {
+    currentIndex: 0,
+    currentInput: '',
     isCorrect: null,
     showHint: false,
     errorIndex: -1,
-    isSwapped: false,
     showTranslation: false,
-    currentInput: '',
-    currentStep: 'PLAY',
-    highlightErrors: false,
     wasHintUsed: false,
+};
+
+const initialResult: DictationResultState = {
+    score: 0
 };
 
 @Injectable()
@@ -81,143 +95,136 @@ export class DictationLocalStore {
     private readonly destroyRef = inject(DestroyRef);
     private readonly speechService = inject(SpeechService);
 
-    private readonly _state = signal<DictationState>(initialState);
+    private readonly _root = signal<DictationRootState>(initialRoot);
+    private readonly _play = signal<DictationPlayState>(initialPlay);
+    private readonly _result = signal<DictationResultState>(initialResult);
 
-    // Base State Selectors
-    private readonly _baseInfo = computed(() => {
-        const s = this._state();
-        const words = s.words;
-        const totalCount = words.length;
-        const index = s.currentIndex;
-        const score = s.score;
-
-        return {
-            totalCount,
-            currentIndex: index,
-            currentStep: s.currentStep,
-            progress: totalCount > 0 ? (index / totalCount) * 100 : 0,
-            counterText: `${index + 1} / ${totalCount}`,
-            scoreText: `${score} / ${totalCount}`,
-            percentText: totalCount > 0 ? `${Math.round((score / totalCount) * 100)}%` : '0%'
+    public readonly rootViewModel = computed((): RootViewModel => {
+        const root: DictationRootState = this._root();
+        return <RootViewModel>{
+            state: root,
+            chapterId: root.chapter?.id ?? null,
+            totalCount: root.words.length
         };
     });
 
-    private readonly _wordContext = computed(() => {
-        const s = this._state();
-        const { currentIndex, totalCount } = this._baseInfo();
-        const currentWord = s.words[currentIndex] || null;
+    public readonly playViewModel = computed((): PlayViewModel => {
+        const root: DictationRootState = this._root();
+        const play: DictationPlayState = this._play();
 
-        const isSwapped = s.isSwapped;
-        const targetText = currentWord ? (isSwapped ? currentWord.pl : currentWord.eng) : '';
-        const hintText = currentWord ? (isSwapped ? currentWord.eng : currentWord.pl) : '';
-        const lang1 = s.chapter?.lang1 || 'Polski';
-        const lang2 = s.chapter?.lang2 || 'Angielski';
+        const words: WordPair[] = root.words;
+        const totalCount: number = words.length;
 
-        return {
-            currentWord,
-            targetText,
-            hintText,
-            targetLangCode: isSwapped ? 'pl-PL' : 'en-US',
-            lang1,
-            lang2,
-            languageLabel: isSwapped ? lang1 : lang2
-        };
-    });
+        const currentWord: WordPair | null = words[play.currentIndex] || null;
+        const targetText: string = currentWord ? (root.isSwapped ? currentWord.pl : currentWord.eng) : '';
+        const hintText: string = currentWord ? (root.isSwapped ? currentWord.eng : currentWord.pl) : '';
 
-    private readonly _inputStatus = computed(() => {
-        const s = this._state();
-        const { targetText } = this._wordContext();
-        const userValue = s.currentInput || '';
-        const isCorrect = s.isCorrect === true;
+        const isCorrect: boolean = play.isCorrect === true;
 
-        const charStates: CharState[] = calculateCharStates(
-            userValue,
+        const charStates: CharView[] = calculateCharStates(
+            play.currentInput || '',
             targetText.toLowerCase(),
-            s.errorIndex,
-            s.highlightErrors
+            play.errorIndex,
+            root.highlightErrors
         );
 
-        return {
-            charStates,
-            isVisualCorrect: isCorrect && s.highlightErrors,
-            showSuccessOverlay: isCorrect && s.highlightErrors
+        return <PlayViewModel>{
+            state: play,
+            currentWord: currentWord,
+            targetText: targetText,
+            progress: words.length > 0 ? (play.currentIndex / words.length) * 100 : 0,
+            hintText: hintText,
+            charViews: charStates,
+            isPrevDisabled: play.currentIndex === 0,
+            isNextDisabled: play.showHint && !isCorrect,
+            isTranslationDisabled: play.showHint,
+            isGiveUpDisabled: play.showHint,
+            translationIcon: play.showTranslation ? 'pi pi-eye-slash' : 'pi pi-question-circle',
+            showTranslationBox: play.showTranslation && !play.showHint,
+            languageLabel: root.isSwapped ? root.chapter?.lang1 || 'Polski' : root.chapter?.lang2 || 'Angielski',
+            counterText: `${play.currentIndex + 1} / ${totalCount}`
         };
     });
 
-    private readonly _uiActions = computed(() => {
-        const s = this._state();
-        const { currentIndex, totalCount } = this._baseInfo();
-        const isCorrect = s.isCorrect === true;
-        const showHint = s.showHint;
+    public readonly resultViewModel = computed((): ResultViewModel => {
+        const root: DictationRootState = this._root();
+        const result: DictationResultState = this._result();
+        const totalCount: number = root.words.length;
+        const score: number = result.score;
 
-        return {
-            isPrevDisabled: currentIndex === 0,
-            isNextDisabled: showHint && !isCorrect,
-            highlightSeverity: (s.highlightErrors ? 'info' : 'secondary') as any,
-            isTranslationDisabled: showHint,
-            isGiveUpDisabled: showHint,
-            translationIcon: s.showTranslation ? 'pi pi-eye-slash' : 'pi pi-question-circle',
-            showTranslationBox: s.showTranslation && !showHint,
-            nextButtonClass: isCorrect ? 'dict-animate-bounce' : 'animate-fade-in'
+        return <ResultViewModel>{
+            state: result,
+            totalCount: totalCount,
+            scoreText: `${score} / ${totalCount}`,
+            percentText: totalCount > 0 ? `${Math.round((score / totalCount) * 100)}%` : '0%',
+            chapterId: root.chapter?.id ?? null
         };
     });
 
-    public readonly viewModel = computed((): DictationViewModel => {
-        return {
-            state: this._state(),
-            ...this._baseInfo(),
-            ...this._wordContext(),
-            ...this._inputStatus(),
-            ...this._uiActions()
-        };
-    });
-
-    // Methods
     public handleLoadGame(id: string): void {
-        this._patch({ isLoading: true, chapterId: id });
+        this._root.update(r => ({ ...r, isLoading: true }));
+
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: chapter => {
                 const words = [...chapter.words].sort(() => Math.random() - 0.5);
-                this._patch({ chapter, words, isLoading: false });
+                this._root.update(r => ({
+                    ...r,
+                    chapter: chapter,
+                    words: words,
+                    isLoading: false,
+                    currentStep: 'PLAY'
+                }));
             },
-            error: () => this._patch({ isLoading: false })
+            error: () => this._root.update(r => ({ ...r, isLoading: false }))
         });
     }
 
     public checkAnswer(answer: string): void {
-        const vm = this.viewModel();
-        const target = vm.targetText.toLowerCase().trim();
-        const user = answer.toLowerCase().trim();
-        const isCorrect = target === user;
+        const root: DictationRootState = this._root();
+        const play: DictationPlayState = this._play();
+        const currentWord: WordPair = root.words[play.currentIndex];
+        const targetText: string = currentWord ? (root.isSwapped ? currentWord.pl : currentWord.eng) : '';
+        const target: string = targetText.toLowerCase().trim();
+        const user: string = answer.toLowerCase().trim();
+        const isCorrect: boolean = target === user;
 
-        this._state.update(s => {
-            let newScore = s.score;
-            if (isCorrect && s.isCorrect !== true) {
-                const hintPenaltyUsed = s.wasHintUsed || s.showHint || s.showTranslation || s.highlightErrors;
-                newScore += hintPenaltyUsed ? 0.5 : 1;
-            }
-            return {
-                ...s,
-                isCorrect,
-                errorIndex: isCorrect ? -1 : s.errorIndex,
-                score: newScore,
-            };
-        });
+        if (isCorrect && play.isCorrect !== true) {
+            const hintPenaltyUsed = play.wasHintUsed || play.showHint || play.showTranslation || root.highlightErrors;
+            this._result.update(r => ({ score: r.score + (hintPenaltyUsed ? 0.5 : 1) }));
+        }
+
+        this._play.update(p => ({
+            ...p,
+            isCorrect,
+            errorIndex: isCorrect ? -1 : p.errorIndex
+        }));
     }
 
     public playAudio(): void {
-        const vm = this.viewModel();
-        if (vm.currentWord) {
-            this.speechService.speak(vm.targetText, vm.targetLangCode);
+        const root = this._root();
+        const play = this._play();
+        const currentWord = root.words[play.currentIndex];
+        if (currentWord) {
+            const targetText = root.isSwapped ? currentWord.pl : currentWord.eng;
+            const targetLangCode = root.isSwapped ? 'pl-PL' : 'en-US';
+            this.speechService.speak(targetText, targetLangCode);
         }
     }
 
     public validateInput(val: string): void {
-        const target = this.viewModel().targetText.trim();
+        const root = this._root();
+        const play = this._play();
+        const currentWord = root.words[play.currentIndex];
+        const target = currentWord ? (root.isSwapped ? currentWord.pl : currentWord.eng).trim() : '';
         const firstError = findFirstErrorIndex(val, target);
-        this._patch({ errorIndex: firstError, currentInput: val });
+
+        this._play.update(p => ({
+            ...p,
+            errorIndex: firstError,
+            currentInput: val
+        }));
 
         if (target && val.trim().toLowerCase() === target.toLowerCase()) {
             this.checkAnswer(val);
@@ -225,30 +232,51 @@ export class DictationLocalStore {
     }
 
     public toggleMode(): void {
-        this._patch({ isSwapped: !this._state().isSwapped });
+        this._root.update(r => ({ ...r, isSwapped: !r.isSwapped }));
         this.resetGame();
     }
 
     public setShowHint(showHint: boolean): void {
-        this._patch({ showHint, errorIndex: -1, wasHintUsed: this._state().wasHintUsed || showHint });
+        this._play.update(p => ({
+            ...p,
+            showHint,
+            errorIndex: -1,
+            wasHintUsed: p.wasHintUsed || showHint
+        }));
     }
 
     public giveUp(): void {
-        this._patch({ showHint: true, errorIndex: -1, currentInput: '', wasHintUsed: true });
+        this._play.update(p => ({
+            ...p,
+            showHint: true,
+            errorIndex: -1,
+            currentInput: '',
+            wasHintUsed: true
+        }));
     }
 
     public toggleTranslation(): void {
-        const nextShow = !this._state().showTranslation;
-        this._patch({ showTranslation: nextShow, wasHintUsed: this._state().wasHintUsed || nextShow });
+        this._play.update(p => {
+            const nextShow = !p.showTranslation;
+            return {
+                ...p,
+                showTranslation: nextShow,
+                wasHintUsed: p.wasHintUsed || nextShow
+            };
+        });
     }
 
     public toggleHighlight(): void {
-        this._patch({ highlightErrors: !this._state().highlightErrors });
+        this._root.update(root => ({
+            ...root,
+            highlightErrors: !root.highlightErrors
+        }));
     }
 
     public nextWord(): void {
-        const s = this._state();
-        const nextIndex = s.currentIndex + 1;
+        const p = this._play();
+        const r = this._root();
+        const nextIndex = p.currentIndex + 1;
 
         const commonReset = {
             isCorrect: null,
@@ -259,61 +287,56 @@ export class DictationLocalStore {
             wasHintUsed: false
         };
 
-        if (nextIndex >= s.words.length) {
-            this._patch({ ...commonReset, currentStep: 'RESULTS' });
+        if (nextIndex >= r.words.length) {
+            this._root.update(root => ({ ...root, currentStep: 'RESULTS' }));
+            this._play.update(play => ({ ...play, ...commonReset }));
         } else {
-            this._patch({ ...commonReset, currentIndex: nextIndex });
+            this._play.update(play => ({ ...play, ...commonReset, currentIndex: nextIndex }));
         }
     }
 
     public nextStep(): void {
-        const vm = this.viewModel();
-        if (vm.isNextDisabled) return;
+        const play = this._play();
+        const isNextDisabled = play.showHint && play.isCorrect !== true;
+        if (isNextDisabled) return;
 
-        if (vm.state.currentStep === 'PLAY') {
+        if (this._root().currentStep === 'PLAY') {
             this.nextWord();
         }
     }
 
     public prevStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'PLAY') {
-            if (s.currentIndex > 0) {
-                this._patch({
-                    currentIndex: s.currentIndex - 1,
+        if (this._root().currentStep === 'PLAY') {
+            this._play.update(p => {
+                if (p.currentIndex <= 0) {
+                    return p;
+                }
+
+                return {
+                    ...p,
+                    currentIndex: p.currentIndex - 1,
                     isCorrect: null,
                     showHint: false,
                     errorIndex: -1,
                     showTranslation: false,
                     currentInput: '',
                     wasHintUsed: false
-                });
-            }
+                };
+            });
         }
     }
 
     public resetGame(): void {
-        const s = this._state();
-        const shuffled = [...(s.chapter?.words || [])].sort(() => Math.random() - 0.5);
-        this._patch({
-            currentIndex: 0,
-            score: 0,
-            words: shuffled,
-            isCorrect: null,
-            showHint: false,
-            errorIndex: -1,
-            showTranslation: false,
-            currentInput: '',
-            wasHintUsed: false
+        this._root.update(root => {
+            const shuffled = [...(root.chapter?.words || [])].sort(() => Math.random() - 0.5);
+            return { ...root, words: shuffled, currentStep: 'PLAY' };
         });
-    }
-
-    private _patch(patch: Partial<DictationState>): void {
-        this._state.update(s => ({ ...s, ...patch }));
+        this._play.set(initialPlay);
+        this._result.set(initialResult);
     }
 }
 
-function calculateCharStates(userValue: string, targetValue: string, errorIndex: number, highlightErrors: boolean): CharState[] {
+function calculateCharStates(userValue: string, targetValue: string, errorIndex: number, highlightErrors: boolean): CharView[] {
     return userValue.split('').map((char, index) => {
         const isError = highlightErrors && index === errorIndex;
         const isCorrect = highlightErrors && (errorIndex === -1 || index < errorIndex) && index < targetValue.length && char.toLowerCase() === targetValue[index];
@@ -328,20 +351,16 @@ function calculateCharStates(userValue: string, targetValue: string, errorIndex:
 
 function findFirstErrorIndex(val: string, target: string): number {
     if (!target) return -1;
-
     let firstError = -1;
     const minLen = Math.min(val.length, target.length);
-
     for (let i = 0; i < minLen; i++) {
         if (val[i].toLowerCase() !== target[i].toLowerCase()) {
             firstError = i;
             break;
         }
     }
-
     if (firstError === -1 && val.length > target.length) {
         firstError = target.length;
     }
-
     return firstError;
 }

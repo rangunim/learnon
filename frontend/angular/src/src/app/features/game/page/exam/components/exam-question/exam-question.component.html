@@ -2,13 +2,14 @@
 <div class="animate-fade-in px-4">
     <!-- Progress Bar -->
     <div class="mb-8">
-        <p-progressbar [value]="vm.progress" [showValue]="false" styleClass="h-2 exam-progress-bar"></p-progressbar>
+        <p-progressbar [value]="vm.progressPercent" [showValue]="false"
+            styleClass="h-2 exam-progress-bar"></p-progressbar>
     </div>
 
     <div class="exam-play-area flex flex-col items-center justify-center p-8">
         <div class="exam-source-label mb-3">{{ vm.sourceLang }}</div>
         <div class="exam-source-word mb-10 text-center max-w-full">
-            {{ vm.currentSourceWord }}
+            {{ vm.sourceWord }}
         </div>
 
         <div class="exam-source-label mb-3">{{ vm.targetLang }}</div>

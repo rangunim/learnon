@@ -3,7 +3,6 @@ import { MemoryCard, MemoryViewModel } from '../../memory.localstore';
 
 @Component({
   selector: 'app-memory-grid',
-  standalone: true,
   imports: [],
   templateUrl: './memory-grid.component.html',
   styleUrl: './memory-grid.component.scss',
