@@ -29,21 +29,16 @@ export interface QuizRootState {
     currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
 }
 
-export interface QuizQuestionState {
-    items: QuizItem[];
-    currentIndex: number;
-}
-
-export interface QuizResultState {
-    score: number;
-    currentFilter: 'all' | 'correct' | 'wrong';
-}
-
 export interface RootViewModel {
     state: QuizRootState;
     chapterId: string;
     sourceLang: string;
     targetLang: string;
+}
+
+export interface QuizQuestionState {
+    items: QuizItem[];
+    currentIndex: number;
 }
 
 export interface QuestionViewModel {
@@ -53,11 +48,9 @@ export interface QuestionViewModel {
     progress: number;
 }
 
-export interface SummaryViewModel {
-    items: QuizItem[];
-    answeredCount: number;
-    totalCount: number;
-    canFinish: boolean;
+export interface QuizResultState {
+    score: number;
+    currentFilter: 'all' | 'correct' | 'wrong';
 }
 
 export interface ResultViewModel {
@@ -66,6 +59,14 @@ export interface ResultViewModel {
     filteredItems: QuizItem[];
     chapterId: string;
 }
+
+export interface SummaryViewModel {
+    items: QuizItem[];
+    answeredCount: number;
+    totalCount: number;
+    canFinish: boolean;
+}
+
 
 const initialRoot: QuizRootState = {
     chapterId: null,

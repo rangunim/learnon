@@ -1,0 +1,6 @@
+/* Framework imports only — no app-specific styles here (microfrontend safe) */
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import "primeicons/primeicons.css";
+@import "@fontsource-variable/open-sans";

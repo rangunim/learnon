@@ -6,7 +6,18 @@
             styleClass="h-2 exam-progress-bar"></p-progressbar>
     </div>
 
-    <div class="exam-play-area flex flex-col items-center justify-center p-8">
+    <div class="exam-play-area relative flex flex-col items-center justify-center p-8">
+        <!-- Navigation Arrows -->
+        <button class="exam-nav-arrow exam-nav-prev" [disabled]="vm.isPrevDisabled" (click)="onPrev()"
+            pTooltip="Poprzednie">
+            <i class="pi pi-chevron-left"></i>
+        </button>
+
+        <button class="exam-nav-arrow exam-nav-next" [disabled]="vm.isNextDisabled" (click)="onNext()"
+            pTooltip="Następne">
+            <i class="pi pi-chevron-right"></i>
+        </button>
+
         <div class="exam-source-label mb-3">{{ vm.sourceLang }}</div>
         <div class="exam-source-word mb-10 text-center max-w-full">
             {{ vm.sourceWord }}

@@ -1,0 +1,4 @@
+@prefix learnon-;
+@important #learnon-mfe-root;
+@import "tailwindcss";
+@import "tailwindcss-primeui";

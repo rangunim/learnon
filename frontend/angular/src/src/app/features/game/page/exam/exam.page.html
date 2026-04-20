@@ -15,18 +15,18 @@
         </div>
     </ng-template>
 
-    <div class="exam-content py-4">
+    <div #scrollAnchor class="exam-content py-4">
         <div class="mb-6 flex justify-between items-start">
             <div>
                 <h1 class="exam-title mb-1 leading-tight">
-                    @switch (root.currentStep) {
+                    @switch (root.state.currentStep) {
                     @case ('QUESTIONS') { Egzamin }
                     @case ('SUMMARY') { Arkusz odpowiedzi }
                     @case ('RESULTS') { Twój wynik }
                     }
                 </h1>
                 <p class="exam-subtitle">
-                    @switch (root.currentStep) {
+                    @switch (root.state.currentStep) {
                     @case ('QUESTIONS') { Przepisz wyświetlone słowo. }
                     @case ('SUMMARY') { Sprawdź odpowiedzi przed zatwierdzeniem. }
                     @case ('RESULTS') { Zobacz jak Ci poszło! }
@@ -35,14 +35,14 @@
             </div>
 
             <div class="flex items-center gap-3">
-                @if (root.currentStep === 'QUESTIONS') {
+                @if (root.state.currentStep === 'QUESTIONS') {
                 @let question = questionViewModel();
                 <p-tag [value]="question.counterText" severity="info" [rounded]="true" />
                 <p-button (onClick)="handleToggleDirection()" icon="pi pi-sync" [rounded]="true" [text]="true"
                     severity="secondary" pTooltip="Zamień kierunek" />
                 <p-button icon="pi pi-list" [text]="true" severity="warn" pTooltip="Pokaż arkusz"
                     (onClick)="handleForceSummary()" />
-                } @else if (root.currentStep === 'SUMMARY') {
+                } @else if (root.state.currentStep === 'SUMMARY') {
                 <p-tag value="Podsumowanie" severity="warn" [rounded]="true" />
                 } @else {
                 <p-tag value="Wyniki" severity="success" [rounded]="true" />
@@ -51,7 +51,7 @@
         </div>
 
         <div class="exam-main-panel min-h-[300px]">
-            @if (root.isLoading) {
+            @if (root.state.isLoading) {
             <div class="flex justify-center items-center py-20">
                 <p-progressspinner />
             </div>
@@ -60,11 +60,11 @@
                 <p>Brak fiszek w tym rozdziale.</p>
             </div>
             } @else {
-            @switch (root.currentStep) {
+            @switch (root.state.currentStep) {
             @case ('QUESTIONS') {
             @let question = questionViewModel();
             <app-exam-question [viewModel]="question" (submit)="handleSubmit()" (validate)="handleUpdateInput($event)"
-                (skip)="handleSkip()" />
+                (skip)="handleSkip()" (prev)="handleBack()" (next)="handleNext()" />
             }
             @case ('SUMMARY') {
             @let summary = summaryViewModel();

@@ -11,10 +11,6 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { far } from '@fortawesome/free-regular-svg-icons';
-import { fab } from '@fortawesome/free-brands-svg-icons';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -71,6 +67,6 @@ export const appConfig: ApplicationConfig = {
   ],
 };
 
-function initializeFontAwesome(library: FaIconLibrary): void {
+/*function initializeFontAwesome(library: FaIconLibrary): void {
   library.addIconPacks(fas, far, fab);
-}
+}*/

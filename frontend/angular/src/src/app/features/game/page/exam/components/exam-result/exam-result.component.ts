@@ -17,7 +17,7 @@ export class ExamResultComponent {
     readonly restart = output<void>();
     readonly setFilter = output<ResultFilter>();
 
-    protected setFilterEvent(filter: ResultFilter): void {
+    protected handleSetFilterEvent(filter: ResultFilter): void {
         this.setFilter.emit(filter);
     }
 

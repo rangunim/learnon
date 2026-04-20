@@ -7,20 +7,9 @@ import { Chapter, WordPair } from '../../../chapter/model/chapter.model';
 export type TranslationDirection = 'toLang2' | 'toLang1';
 export type ResultFilter = 'ALL' | 'CORRECT' | 'INCORRECT';
 
-export interface ExamAnswer {
-    card: WordPair;
-    sourceWord: string;
-    targetWord: string;
-    userAnswer: string;
-    isCorrect: boolean;
-}
-
-export interface ExamMetaState {
+export interface ExamRootState {
     isLoading: boolean;
     currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
-}
-
-export interface ExamConfigState {
     chapterId: string | null;
     chapter: Chapter | null;
     lang1: string;
@@ -30,20 +19,19 @@ export interface ExamConfigState {
 }
 
 export interface RootViewModel {
-    isLoading: boolean;
-    currentStep: 'QUESTIONS' | 'SUMMARY' | 'RESULTS';
+    state: ExamRootState;
     stepIndex: number;
     totalCount: number;
-    chapterId: string | null;
 }
-
 
 export interface ExamPlayState {
     currentIndex: number;
     currentInput: string;
+    drafts: string[];
 }
 
 export interface QuestionViewModel {
+    state: ExamPlayState;
     sourceWord: string;
     targetWord: string;
     sourceLang: string;
@@ -51,14 +39,27 @@ export interface QuestionViewModel {
     progressPercent: number;
     counterText: string;
     isSubmitDisabled: boolean;
-    currentInput: string;
+    isPrevDisabled: boolean;
+    isNextDisabled: boolean;
 }
 
+export interface ExamAnswer {
+    card: WordPair;
+    sourceWord: string;
+    targetWord: string;
+    userAnswer: string;
+    isCorrect: boolean;
+}
+
+export interface SummaryItem {
+    card: WordPair;
+    sourceWord: string;
+}
 
 export interface SummaryViewModel {
+    state: ExamRootState;
+    items: SummaryItem[];
     answers: ExamAnswer[];
-    cards: WordPair[];
-    direction: TranslationDirection;
 }
 
 export interface ExamResultState {
@@ -68,7 +69,7 @@ export interface ExamResultState {
 }
 
 export interface ResultViewModel {
-    filter: ResultFilter;
+    state: ExamResultState;
     filteredAnswers: ExamAnswer[];
     correctCount: number;
     incorrectCount: number;
@@ -78,12 +79,9 @@ export interface ResultViewModel {
     chapterId: string | null;
 }
 
-const initialMeta: ExamMetaState = {
+const initialRoot: ExamRootState = {
     isLoading: true,
-    currentStep: 'QUESTIONS'
-};
-
-const initialConfig: ExamConfigState = {
+    currentStep: 'QUESTIONS',
     chapterId: null,
     chapter: null,
     lang1: 'PL',
@@ -94,7 +92,8 @@ const initialConfig: ExamConfigState = {
 
 const initialPlay: ExamPlayState = {
     currentIndex: 0,
-    currentInput: ''
+    currentInput: '',
+    drafts: []
 };
 
 const initialResult: ExamResultState = {
@@ -109,95 +108,102 @@ export class ExamLocalStore {
     private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
 
-    private readonly _meta = signal<ExamMetaState>(initialMeta);
-    private readonly _config = signal<ExamConfigState>(initialConfig);
+    private readonly _root = signal<ExamRootState>(initialRoot);
     private readonly _play = signal<ExamPlayState>(initialPlay);
     private readonly _result = signal<ExamResultState>(initialResult);
 
     public readonly rootViewModel = computed((): RootViewModel => {
-        const meta = this._meta();
-        const config = this._config();
-        const stepIndex = meta.currentStep === 'QUESTIONS' ? 0
-            : meta.currentStep === 'SUMMARY' ? 1 : 2;
+        const root = this._root();
+        const stepIndex: number = root.currentStep === 'QUESTIONS'
+            ? 0
+            : root.currentStep === 'SUMMARY' ? 1 : 2;
 
         return {
-            isLoading: meta.isLoading,
-            currentStep: meta.currentStep,
-            stepIndex,
-            totalCount: config.cards.length,
-            chapterId: config.chapterId
+            state: root,
+            stepIndex: stepIndex,
+            totalCount: root.cards.length
         };
     });
 
     public readonly questionViewModel = computed((): QuestionViewModel => {
-        const config = this._config();
+        const root = this._root();
         const play = this._play();
-        const cards = config.cards;
+        const cards = root.cards;
+        const card = cards[play.currentIndex];
+
+        const sourceWord = card ? (root.direction === 'toLang2' ? card.pl : card.eng) : '';
+        const targetWord = card ? (root.direction === 'toLang2' ? card.eng : card.pl) : '';
+
         const total = cards.length;
         const index = play.currentIndex;
-        const card = cards[index];
-
-        const sourceWord = card ? (config.direction === 'toLang2' ? card.pl : card.eng) : '';
-        const targetWord = card ? (config.direction === 'toLang2' ? card.eng : card.pl) : '';
 
         return {
-            sourceWord,
-            targetWord,
-            sourceLang: config.direction === 'toLang2' ? config.lang1 : config.lang2,
-            targetLang: config.direction === 'toLang2' ? config.lang2 : config.lang1,
+            state: play,
+            sourceWord: sourceWord,
+            targetWord: targetWord,
+            sourceLang: root.direction === 'toLang2' ? root.lang1 : root.lang2,
+            targetLang: root.direction === 'toLang2' ? root.lang2 : root.lang1,
             progressPercent: total > 0 ? Math.floor((index / total) * 100) : 0,
             counterText: `${index + 1} / ${total}`,
             isSubmitDisabled: !play.currentInput.trim(),
-            currentInput: play.currentInput
+            isPrevDisabled: index === 0,
+            isNextDisabled: index >= total - 1
         };
     });
 
     public readonly summaryViewModel = computed((): SummaryViewModel => {
-        const config = this._config();
+        const root = this._root();
         const result = this._result();
 
+        const items: SummaryItem[] = root.cards.map(card => ({
+            card,
+            sourceWord: root.direction === 'toLang2' ? card.pl : card.eng
+        }));
+
         return {
-            answers: result.answers,
-            cards: config.cards,
-            direction: config.direction
+            state: root,
+            items,
+            answers: result.answers
         };
     });
 
     public readonly resultViewModel = computed((): ResultViewModel => {
-        const config = this._config();
+        const root = this._root();
         const result = this._result();
-        const total = config.cards.length;
+        const total = root.cards.length;
         const correctCount = result.answers.filter(a => a.isCorrect).length;
         const incorrectCount = result.answers.filter(a => !a.isCorrect).length;
 
         const filteredAnswers =
-            result.filter === 'CORRECT' ? result.answers.filter(a => a.isCorrect) :
-                result.filter === 'INCORRECT' ? result.answers.filter(a => !a.isCorrect) :
-                    result.answers;
+            result.filter === 'CORRECT'
+                ? result.answers.filter(a => a.isCorrect)
+                : result.filter === 'INCORRECT'
+                    ? result.answers.filter(a => !a.isCorrect)
+                    : result.answers;
 
         return {
-            filter: result.filter,
+            state: result,
             filteredAnswers: filteredAnswers,
             correctCount: correctCount,
             incorrectCount: incorrectCount,
             totalAnswersCount: result.answers.length,
             scoreText: `${result.score} / ${total}`,
             percentText: total > 0 ? `${Math.round((result.score / total) * 100)}%` : '0%',
-            chapterId: config.chapterId
+            chapterId: root.chapterId
         };
     });
 
     public loadGame(id: string): void {
-        this._meta.update(m => ({ ...m, isLoading: true }));
-        this._config.update(c => ({ ...c, chapterId: id }));
+        this._root.update(m => ({ ...m, isLoading: true, chapterId: id }));
 
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (chapter: Chapter) => {
                 const shuffledCards = [...chapter.words].sort(() => Math.random() - 0.5);
-                this._meta.set({ isLoading: false, currentStep: 'QUESTIONS' });
-                this._config.set({
+                this._root.set({
+                    isLoading: false,
+                    currentStep: 'QUESTIONS',
                     chapterId: chapter.id || null,
                     chapter,
                     lang1: chapter.lang1 || 'PL',
@@ -205,15 +211,18 @@ export class ExamLocalStore {
                     cards: shuffledCards,
                     direction: 'toLang2'
                 });
-                this._play.set(initialPlay);
+                this._play.set({
+                    ...initialPlay,
+                    drafts: new Array(shuffledCards.length).fill('')
+                });
                 this._result.set(initialResult);
             },
-            error: () => this._meta.update(m => ({ ...m, isLoading: false }))
+            error: () => this._root.update(m => ({ ...m, isLoading: false }))
         });
     }
 
     public toggleDirection(): void {
-        this._config.update(c => ({
+        this._root.update(c => ({
             ...c,
             direction: c.direction === 'toLang2' ? 'toLang1' : 'toLang2'
         }));
@@ -224,31 +233,41 @@ export class ExamLocalStore {
     }
 
     public updateInput(val: string): void {
-        this._play.update(p => ({ ...p, currentInput: val }));
+        this._play.update(p => {
+            const drafts = [...p.drafts];
+            if (p.currentIndex < drafts.length) {
+                drafts[p.currentIndex] = val;
+            }
+            return {
+                ...p,
+                currentInput: val,
+                drafts: drafts
+            };
+        });
     }
 
     public submitAnswer(): void {
-        const config = this._config();
+        const root = this._root();
         const play = this._play();
-        const card = config.cards[play.currentIndex];
+        const card = root.cards[play.currentIndex];
         const userVal = play.currentInput.trim().toLowerCase();
         if (!userVal || !card) return;
 
-        const targetWord = config.direction === 'toLang2' ? card.eng : card.pl;
-        const sourceWord = config.direction === 'toLang2' ? card.pl : card.eng;
+        const targetWord = root.direction === 'toLang2' ? card.eng : card.pl;
+        const sourceWord = root.direction === 'toLang2' ? card.pl : card.eng;
         const isCorrect = userVal === targetWord.trim().toLowerCase();
 
         this._recordAnswer(card, sourceWord, targetWord, play.currentInput, isCorrect);
     }
 
     public skip(): void {
-        const config = this._config();
+        const root = this._root();
         const play = this._play();
-        const card = config.cards[play.currentIndex];
+        const card = root.cards[play.currentIndex];
         if (!card) return;
 
-        const targetWord = config.direction === 'toLang2' ? card.eng : card.pl;
-        const sourceWord = config.direction === 'toLang2' ? card.pl : card.eng;
+        const targetWord = root.direction === 'toLang2' ? card.eng : card.pl;
+        const sourceWord = root.direction === 'toLang2' ? card.pl : card.eng;
 
         this._recordAnswer(card, sourceWord, targetWord, '', false);
     }
@@ -260,64 +279,98 @@ export class ExamLocalStore {
         userAnswer: string,
         isCorrect: boolean
     ): void {
-        const config = this._config();
+        const root = this._root();
         const play = this._play();
         const result = this._result();
-        const nextIndex = play.currentIndex + 1;
-        const newScore = isCorrect ? result.score + 1 : result.score;
+        const nextIndex: number = play.currentIndex + 1;
+        const newScore: number = isCorrect ? result.score + 1 : result.score;
 
         const newAnswer: ExamAnswer = { card, sourceWord, targetWord, userAnswer, isCorrect };
-        const updatedAnswers = [...result.answers, newAnswer];
+        const updatedAnswers: ExamAnswer[] = [...result.answers, newAnswer];
 
         this._result.update(r => ({ ...r, score: newScore, answers: updatedAnswers }));
 
-        if (nextIndex >= config.cards.length) {
-            this._meta.update(m => ({ ...m, currentStep: 'SUMMARY' }));
-            this._play.update(p => ({ ...p, currentIndex: nextIndex, currentInput: '' }));
+        if (nextIndex >= root.cards.length) {
+            this._root.update(m => ({ ...m, currentStep: 'SUMMARY' }));
+        }
+
+        this._play.update(p => {
+            const nextIndex = p.currentIndex + 1;
+            return {
+                ...p,
+                currentIndex: nextIndex,
+                currentInput: p.drafts[nextIndex] || ''
+            };
+        });
+    }
+
+    public nextQuestion(): void {
+        const root = this._root();
+        const play = this._play();
+        if (play.currentIndex < root.cards.length - 1) {
+            const nextIndex = play.currentIndex + 1;
+            this._play.update(p => ({
+                ...p,
+                currentIndex: nextIndex,
+                currentInput: p.drafts[nextIndex] || ''
+            }));
         } else {
-            this._play.update(p => ({ ...p, currentIndex: nextIndex, currentInput: '' }));
+            this._root.update(m => ({ ...m, currentStep: 'SUMMARY' }));
         }
     }
 
     public nextStep(): void {
-        if (this._meta().currentStep === 'SUMMARY') {
-            this._meta.update(m => ({ ...m, currentStep: 'RESULTS' }));
+        if (this._root().currentStep === 'SUMMARY') {
+            this._root.update(m => ({ ...m, currentStep: 'RESULTS' }));
         }
     }
 
     public prevStep(): void {
-        const meta = this._meta();
+        const root = this._root();
         const play = this._play();
 
-        if (meta.currentStep === 'QUESTIONS') {
+        if (root.currentStep === 'QUESTIONS') {
             if (play.currentIndex > 0) {
-                this._play.update(p => ({ ...p, currentIndex: p.currentIndex - 1, currentInput: '' }));
+                const prevIndex = play.currentIndex - 1;
+                this._play.update(p => ({
+                    ...p,
+                    currentIndex: prevIndex,
+                    currentInput: p.drafts[prevIndex] || ''
+                }));
             }
-        } else if (meta.currentStep === 'SUMMARY') {
-            const lastIndex = this._config().cards.length - 1;
-            this._meta.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
-            this._play.update(p => ({ ...p, currentIndex: lastIndex }));
+        } else if (root.currentStep === 'SUMMARY') {
+            const lastIndex = root.cards.length - 1;
+            this._root.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
+            this._play.update(p => ({
+                ...p,
+                currentIndex: lastIndex,
+                currentInput: p.drafts[lastIndex] || ''
+            }));
         }
     }
 
     public forceSummary(): void {
-        this._meta.update(m => ({ ...m, currentStep: 'SUMMARY' }));
+        this._root.update(m => ({ ...m, currentStep: 'SUMMARY' }));
     }
 
     public goToItem(index: number): void {
-        this._meta.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
-        this._play.update(p => ({ ...p, currentIndex: index, currentInput: '' }));
+        this._root.update(m => ({ ...m, currentStep: 'QUESTIONS' }));
+        this._play.update(p => ({
+            ...p,
+            currentIndex: index,
+            currentInput: p.drafts[index] || ''
+        }));
     }
 
     public restartGame(): void {
-        const id = this._config().chapterId;
+        const id = this._root().chapterId;
         if (id) {
             this.loadGame(id);
         }
     }
 
     public close(): void {
-        const id = this._config().chapterId;
+        const id = this._root().chapterId;
         if (id) {
             this.router.navigate(['/chapters', id]);
         } else {

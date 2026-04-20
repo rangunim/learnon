@@ -5,14 +5,20 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpeechService } from '../../../../core/services/speech.service';
 import { MessageService } from 'primeng/api';
 
-export interface ListenConfigState {
-    chapterId: string | null;
+export interface ListenRepeatRootState {
+    isLoading: boolean;
+    currentStep: 'PLAY' | 'RESULTS';
+    isFinished: boolean;
     chapter: Chapter | null;
-    lang1: string;
-    lang2: string;
     words: WordPair[];
     isSwapped: boolean;
     autoListen: boolean;
+}
+
+export interface RootViewModel {
+    state: ListenRepeatRootState;
+    chapterId: string | null;
+    totalCount: number;
 }
 
 export interface ListenPlayState {
@@ -23,263 +29,237 @@ export interface ListenPlayState {
     attemptCount: number;
 }
 
-export interface ListenResultState {
-    score: number;
-}
-
-export interface ListenRepeatState {
-    isLoading: boolean;
-    currentStep: 'PLAY' | 'RESULTS';
-    isFinished: boolean;
-    config: ListenConfigState;
-    play: ListenPlayState;
-    result: ListenResultState;
-}
-
 export interface PlayViewModel {
-    currentIndex: number;
+    state: ListenPlayState;
     targetText: string;
     targetLangCode: string;
     progressPercent: number;
     isListening: boolean;
     currentWord: WordPair | null;
-    isCorrect: boolean | null;
-    showWord: boolean;
-    attemptCount: number;
-    lastTranscript: string;
     autoListen: boolean;
     currentSourceLang: string;
 }
 
-export interface ResultViewModel {
+export interface ListenResultState {
     score: number;
+}
+
+export interface ResultViewModel {
+    state: ListenResultState;
     totalCount: number;
     chapterId: string | null;
 }
 
-export interface ListenRepeatViewModel {
-    isLoading: boolean;
-    currentStep: 'PLAY' | 'RESULTS';
-    totalCount: number;
-    chapterId: string | null;
-
-    play?: PlayViewModel;
-    result?: ResultViewModel;
-}
-
-const initialState: ListenRepeatState = {
+const initialRoot: ListenRepeatRootState = {
     isLoading: false,
     currentStep: 'PLAY',
     isFinished: false,
-    config: {
-        chapterId: null,
-        chapter: null,
-        lang1: 'Polski',
-        lang2: 'Angielski',
-        words: [],
-        isSwapped: false,
-        autoListen: true
-    },
-    play: {
-        currentIndex: 0,
-        lastTranscript: '',
-        isCorrect: null,
-        showWord: false,
-        attemptCount: 0
-    },
-    result: {
-        score: 0
-    }
+    chapter: null,
+    words: [],
+    isSwapped: false,
+    autoListen: true
+};
+
+const initialPlay: ListenPlayState = {
+    currentIndex: 0,
+    lastTranscript: '',
+    isCorrect: null,
+    showWord: false,
+    attemptCount: 0
+};
+
+const initialResult: ListenResultState = {
+    score: 0
 };
 
 @Injectable()
 export class ListenRepeatLocalStore {
     private readonly gamesStore = inject(GameStore);
     private readonly destroyRef = inject(DestroyRef);
-    private readonly _state = signal<ListenRepeatState>(initialState);
     private readonly speechService = inject(SpeechService);
     private readonly messageService = inject(MessageService);
 
-    // Selectors
-    public readonly viewModel = computed((): ListenRepeatViewModel => {
-        const s = this._state();
-        const words = s.config.words;
-        const totalCount = words.length;
+    private readonly _root = signal<ListenRepeatRootState>(initialRoot);
+    private readonly _play = signal<ListenPlayState>(initialPlay);
+    private readonly _result = signal<ListenResultState>(initialResult);
 
-        let playVM: PlayViewModel | undefined = undefined;
-        let resultVM: ResultViewModel | undefined = undefined;
-
-        if (s.currentStep === 'PLAY') {
-            const currentWord = words[s.play.currentIndex] || null;
-            const targetText = currentWord ? (s.config.isSwapped ? currentWord.pl : currentWord.eng) : '';
-
-            playVM = {
-                currentIndex: s.play.currentIndex,
-                targetText,
-                targetLangCode: s.config.isSwapped ? 'pl-PL' : 'en-US',
-                progressPercent: totalCount > 0 ? (s.play.currentIndex / totalCount) * 100 : 0,
-                isListening: false,
-                currentWord,
-                isCorrect: s.play.isCorrect,
-                showWord: s.play.showWord,
-                attemptCount: s.play.attemptCount,
-                lastTranscript: s.play.lastTranscript,
-                autoListen: s.config.autoListen,
-                currentSourceLang: s.config.isSwapped ? s.config.lang1 : s.config.lang2
-            };
-        }
-
-        if (s.currentStep === 'RESULTS') {
-            resultVM = {
-                score: s.result.score,
-                totalCount,
-                chapterId: s.config.chapterId
-            };
-        }
-
+    public readonly rootViewModel = computed((): RootViewModel => {
+        const root = this._root();
         return {
-            isLoading: s.isLoading,
-            currentStep: s.currentStep,
-            totalCount,
-            chapterId: s.config.chapterId,
-            play: playVM,
-            result: resultVM
+            state: root,
+            chapterId: root.chapter?.id || null,
+            totalCount: root.words.length
         };
     });
 
-    // Methods
+    public readonly playViewModel = computed((): PlayViewModel => {
+        const root = this._root();
+        const play = this._play();
+        const words = root.words;
+        const totalCount = words.length;
+
+        const currentWord = words[play.currentIndex] || null;
+        const targetText = currentWord ? (root.isSwapped ? currentWord.pl : currentWord.eng) : '';
+
+        return {
+            state: play,
+            targetText,
+            targetLangCode: root.isSwapped ? 'pl-PL' : 'en-US',
+            progressPercent: totalCount > 0 ? (play.currentIndex / totalCount) * 100 : 0,
+            isListening: false, // Updated in the page component
+            currentWord,
+            autoListen: root.autoListen,
+            currentSourceLang: root.isSwapped ? root.chapter?.lang1 || 'Polski' : root.chapter?.lang2 || 'Angielski'
+        };
+    });
+
+    public readonly resultViewModel = computed((): ResultViewModel => {
+        const root = this._root();
+        const result = this._result();
+        return {
+            state: result,
+            totalCount: root.words.length,
+            chapterId: root.chapter?.id || null
+        };
+    });
+
+
     public handleLoadGame(id: string): void {
-        this._state.update(s => ({ ...s, isLoading: true, config: { ...s.config, chapterId: id } }));
+        this._root.update(s => ({ ...s, isLoading: true }));
         this.gamesStore.loadGameData(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (chapter: Chapter) => {
                 const words = [...chapter.words].sort(() => Math.random() - 0.5);
-                this._state.set({
+                this._root.set({
                     isLoading: false,
                     currentStep: 'PLAY',
                     isFinished: false,
-                    config: {
-                        chapterId: chapter.id || null,
-                        chapter,
-                        lang1: chapter.lang1 || 'Polski',
-                        lang2: chapter.lang2 || 'Angielski',
-                        words,
-                        isSwapped: false,
-                        autoListen: true
-                    },
-                    play: {
-                        currentIndex: 0,
-                        lastTranscript: '',
-                        isCorrect: null,
-                        showWord: false,
-                        attemptCount: 0
-                    },
-                    result: {
-                        score: 0
-                    }
+                    chapter,
+                    words,
+                    isSwapped: false,
+                    autoListen: true
                 });
+                this._play.set(initialPlay);
+                this._result.set(initialResult);
+
+                // Auto-start initial word
+                setTimeout(() => {
+                    this.playAudio();
+                    if (this._root().autoListen) {
+                        setTimeout(() => this.startListening(), 1500);
+                    }
+                }, 800);
             },
-            error: () => this._state.update(s => ({ ...s, isLoading: false }))
+            error: () => this._root.update(s => ({ ...s, isLoading: false }))
         });
     }
 
     public checkTranscript(transcript: string): void {
-        const vm = this.viewModel();
-        if (!vm.play) return;
+        const root = this._root();
+        const play = this._play();
 
-        const target = vm.play.targetText.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").trim();
+        const words = root.words;
+        const currentWord = words[play.currentIndex] || null;
+        if (!currentWord) return;
+
+        const targetText = root.isSwapped ? currentWord.pl : currentWord.eng;
+        const target = targetText.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").trim();
         const heard = transcript.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").trim();
         const isCorrect = target === heard;
 
-        this._state.update(s => {
-            const newScore = isCorrect ? s.result.score + 1 : s.result.score;
-            const newAttemptCount = isCorrect ? s.play.attemptCount : s.play.attemptCount + 1;
+        if (isCorrect) {
+            this._result.update(s => ({ score: s.score + 1 }));
+        }
 
-            return {
-                ...s,
-                play: {
-                    ...s.play,
-                    isCorrect,
-                    attemptCount: newAttemptCount,
-                    lastTranscript: transcript
-                },
-                result: {
-                    ...s.result,
-                    score: newScore
-                }
-            };
-        });
+        this._play.update(p => ({
+            ...p,
+            isCorrect,
+            attemptCount: isCorrect ? p.attemptCount : p.attemptCount + 1,
+            lastTranscript: transcript
+        }));
 
         // Auto-skip after 3 attempts
-        if (!isCorrect && this._state().play.attemptCount >= 3) {
+        if (!isCorrect && this._play().attemptCount >= 3) {
             setTimeout(() => {
-                const state = this._state();
-                if (state.play.attemptCount >= 3 && state.currentStep === 'PLAY') {
+                const p = this._play();
+                const r = this._root();
+                if (p.attemptCount >= 3 && r.currentStep === 'PLAY') {
                     this.nextWord();
-                    this.playAudio();
+                    setTimeout(() => {
+                        this.playAudio();
+                        if (this._root().autoListen) {
+                            setTimeout(() => this.startListening(), 1300);
+                        }
+                    }, 500);
                 }
             }, 2000);
         }
 
         if (isCorrect) {
             setTimeout(() => {
-                const s = this._state();
-                if (s.play.isCorrect === true && s.currentStep === 'PLAY') {
+                const p = this._play();
+                const r = this._root();
+                if (p.isCorrect === true && r.currentStep === 'PLAY') {
                     this.nextStep();
-                    this.playAudio();
+                    if (this._root().currentStep === 'PLAY') {
+                        setTimeout(() => {
+                            this.playAudio();
+                            if (this._root().autoListen) {
+                                setTimeout(() => this.startListening(), 1300);
+                            }
+                        }, 500);
+                    }
                 }
-            }, 1800);
+            }, 2000);
         }
 
-        const stateCheck = this._state();
-        if (stateCheck.currentStep === 'PLAY') {
+        if (!isCorrect && this._play().attemptCount < 3 && this._root().currentStep === 'PLAY') {
             setTimeout(() => {
-                const s = this._state();
-                if (s.currentStep === 'PLAY' && !s.isFinished && s.config.autoListen) {
+                const r = this._root();
+                if (r.currentStep === 'PLAY' && !r.isFinished && r.autoListen) {
                     this.startListening();
                 }
-            }, 2800);
+            }, 1600);
         }
     }
 
     public nextWord(): void {
-        const s = this._state();
-        const nextIndex = s.play.currentIndex + 1;
+        const root = this._root();
+        const play = this._play();
+        const nextIndex = play.currentIndex + 1;
 
-        if (nextIndex >= s.config.words.length) {
-            this._state.update(state => ({
-                ...state,
+        if (nextIndex >= root.words.length) {
+            this._root.update(s => ({
+                ...s,
                 currentStep: 'RESULTS',
-                isFinished: true,
-                play: { ...state.play, currentIndex: state.config.words.length, isCorrect: null, showWord: false, attemptCount: 0 }
+                isFinished: true
             }));
+            this._play.update(p => ({ ...p, currentIndex: root.words.length, isCorrect: null, showWord: false, attemptCount: 0 }));
         } else {
-            this._state.update(state => ({
-                ...state,
-                play: {
-                    ...state.play,
-                    currentIndex: nextIndex,
-                    isCorrect: null,
-                    lastTranscript: '',
-                    showWord: false,
-                    attemptCount: 0
-                }
+            this._play.update(p => ({
+                ...p,
+                currentIndex: nextIndex,
+                isCorrect: null,
+                lastTranscript: '',
+                showWord: false,
+                attemptCount: 0
             }));
         }
     }
 
     public nextStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'PLAY') {
-            const nextIndex = s.play.currentIndex + 1;
-            if (nextIndex >= s.config.words.length) {
-                this._state.update(state => ({
-                    ...state,
+        const r = this._root();
+        if (r.currentStep === 'PLAY') {
+            const p = this._play();
+            const nextIndex = p.currentIndex + 1;
+            if (nextIndex >= r.words.length) {
+                this._root.update(s => ({
+                    ...s,
                     currentStep: 'RESULTS',
-                    isFinished: true,
-                    play: { ...state.play, currentIndex: state.config.words.length, isCorrect: null, showWord: false, attemptCount: 0 }
+                    isFinished: true
                 }));
+                this._play.update(play => ({ ...play, currentIndex: r.words.length, isCorrect: null, showWord: false, attemptCount: 0 }));
             } else {
                 this.nextWord();
             }
@@ -287,36 +267,35 @@ export class ListenRepeatLocalStore {
     }
 
     public prevStep(): void {
-        const s = this._state();
-        if (s.currentStep === 'PLAY') {
-            if (s.play.currentIndex > 0) {
-                this._state.update(state => ({
-                    ...state,
-                    play: {
-                        ...state.play,
-                        currentIndex: state.play.currentIndex - 1,
-                        isCorrect: null,
-                        lastTranscript: '',
-                        showWord: false,
-                        attemptCount: 0
-                    }
+        const r = this._root();
+        if (r.currentStep === 'PLAY') {
+            const p = this._play();
+            if (p.currentIndex > 0) {
+                this._play.update(play => ({
+                    ...play,
+                    currentIndex: play.currentIndex - 1,
+                    isCorrect: null,
+                    lastTranscript: '',
+                    showWord: false,
+                    attemptCount: 0
                 }));
             }
         }
     }
 
     public playAudio(): void {
-        const vm = this.viewModel();
-        if (vm.play) {
-            this.speechService.speak(vm.play.targetText, vm.play.targetLangCode);
+        const playVm = this.playViewModel();
+        if (playVm.currentWord) {
+            this.speechService.speak(playVm.targetText, playVm.targetLangCode);
         }
     }
 
     public async startListening(): Promise<void> {
-        const vm = this.viewModel();
-        if (!vm.play) return;
+        const playVm = this.playViewModel();
+        if (!playVm.currentWord) return;
         try {
-            const transcript = await this.speechService.listen(vm.play.targetLangCode);
+            this.speechService.stopListening();
+            const transcript = await this.speechService.listen(playVm.targetLangCode);
             this.checkTranscript(transcript);
         } catch (error) {
             this.messageService.add({
@@ -328,59 +307,38 @@ export class ListenRepeatLocalStore {
     }
 
     public incrementAttempts(): void {
-        this._state.update(state => ({
-            ...state,
-            play: { ...state.play, attemptCount: state.play.attemptCount + 1 }
-        }));
+        this._play.update(p => ({ ...p, attemptCount: p.attemptCount + 1 }));
     }
 
     public failAttempt(): void {
-        this._state.update(state => ({
-            ...state,
-            play: { ...state.play, attemptCount: state.play.attemptCount + 1, isCorrect: false }
-        }));
+        this._play.update(p => ({ ...p, attemptCount: p.attemptCount + 1, isCorrect: false }));
     }
 
     public toggleWord(): void {
-        this._state.update(state => ({
-            ...state,
-            play: { ...state.play, showWord: !state.play.showWord }
-        }));
+        this._play.update(p => ({ ...p, showWord: !p.showWord }));
     }
 
     public toggleAutoListen(): void {
-        this._state.update(state => ({
-            ...state,
-            config: { ...state.config, autoListen: !state.config.autoListen }
-        }));
+        this._root.update(s => ({ ...s, autoListen: !s.autoListen }));
     }
 
     public toggleMode(): void {
-        this._state.update(state => ({
-            ...state,
-            config: { ...state.config, isSwapped: !state.config.isSwapped }
-        }));
+        this._root.update(s => ({ ...s, isSwapped: !s.isSwapped }));
         this.resetGame();
     }
 
     public resetGame(): void {
-        const s = this._state();
-        const words = [...(s.config.chapter?.words || [])].sort(() => Math.random() - 0.5);
-        this._state.update(state => ({
-            ...state,
-            currentStep: 'PLAY',
-            isFinished: false,
-            config: { ...state.config, words },
-            play: {
-                currentIndex: 0,
-                lastTranscript: '',
-                isCorrect: null,
-                showWord: false,
-                attemptCount: 0
-            },
-            result: {
-                score: 0
-            }
-        }));
+        this._root.update(s => {
+            const words = [...(s.chapter?.words || [])].sort(() => Math.random() - 0.5);
+            return {
+                ...s,
+                currentStep: 'PLAY',
+                isFinished: false,
+                words
+            };
+        });
+        this._play.set(initialPlay);
+        this._result.set(initialResult);
     }
 }
+

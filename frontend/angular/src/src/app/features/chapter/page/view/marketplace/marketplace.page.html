@@ -1,4 +1,4 @@
-<p-dialog [visible]="true" (visibleChange)="onClose.emit()" header="Publiczny Marketplace" [modal]="true"
+<p-dialog [visible]="true" (visibleChange)="closeDialog()" header="Publiczny Marketplace" [modal]="true"
     [style]="{width: '90vw', maxWidth: '1200px'}" [draggable]="false" [resizable]="false"
     styleClass="marketplace-dialog-container" (onShow)="onDialogShow()">
 
@@ -48,7 +48,7 @@
     </div>
 
     <ng-template pTemplate="footer">
-        <p-button label="Zamknij" icon="pi pi-times" (onClick)="onClose.emit()" styleClass="p-button-text"></p-button>
+        <p-button label="Zamknij" icon="pi pi-times" (onClick)="closeDialog()" styleClass="p-button-text"></p-button>
     </ng-template>
 </p-dialog>
 

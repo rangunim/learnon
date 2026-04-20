@@ -27,15 +27,16 @@
     <!-- Answer summary with filter tabs -->
     <div class="w-full max-w-lg mb-12">
         <div class="flex gap-2 mb-6 justify-center">
-            <button class="exam-tab" [class.exam-tab-active]="vm.filter === 'ALL'" (click)="setFilterEvent('ALL')">
+            <button class="exam-tab" [class.exam-tab-active]="vm.state.filter === 'ALL'"
+                (click)="handleSetFilterEvent('ALL')">
                 Wszystkie ({{ vm.totalAnswersCount }})
             </button>
-            <button class="exam-tab" [class.exam-tab-active]="vm.filter === 'CORRECT'"
-                (click)="setFilterEvent('CORRECT')">
+            <button class="exam-tab" [class.exam-tab-active]="vm.state.filter === 'CORRECT'"
+                (click)="handleSetFilterEvent('CORRECT')">
                 Poprawne ({{ vm.correctCount }})
             </button>
-            <button class="exam-tab" [class.exam-tab-active]="vm.filter === 'INCORRECT'"
-                (click)="setFilterEvent('INCORRECT')">
+            <button class="exam-tab" [class.exam-tab-active]="vm.state.filter === 'INCORRECT'"
+                (click)="handleSetFilterEvent('INCORRECT')">
                 Błędne ({{ vm.incorrectCount }})
             </button>
         </div>

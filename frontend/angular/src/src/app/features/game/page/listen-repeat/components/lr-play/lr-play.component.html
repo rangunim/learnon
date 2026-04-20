@@ -8,12 +8,12 @@
 
     <div class="lr-play-area flex flex-col items-center justify-center p-8 relative overflow-hidden">
         <!-- Life/Attempt Indicators -->
-        @if (vm.isCorrect !== true) {
+        @if (vm.state.isCorrect !== true) {
         <div class="lr-lives-indicator absolute top-6 right-6 flex gap-2 p-3 z-10 backdrop-blur-md opacity-90">
             @for (i of [1,2,3]; track i) {
-            <i class="pi text-xs transition-colors duration-300" [class.pi-heart-fill]="vm.attemptCount < i"
-                [class.pi-times]="vm.attemptCount >= i" [class.is-lost]="vm.attemptCount >= i"
-                [class.is-active]="vm.attemptCount < i"></i>
+            <i class="pi text-xs transition-colors duration-300" [class.pi-heart-fill]="vm.state.attemptCount < i"
+                [class.pi-times]="vm.state.attemptCount >= i" [class.is-lost]="vm.state.attemptCount >= i"
+                [class.is-active]="vm.state.attemptCount < i"></i>
             }
         </div>
         }
@@ -29,7 +29,7 @@
 
         <!-- Target Word / Hint Area -->
         <div class="min-h-[4.5rem] mb-6 flex flex-col items-center justify-center gap-3 w-full">
-            @if (vm.isCorrect === true || vm.showWord) {
+            @if (vm.state.isCorrect === true || vm.state.showWord) {
             <div class="text-3xl font-black text-surface-900 tracking-tight animate-fade-in text-center">{{
                 vm.targetText }}</div>
             } @else {
@@ -53,12 +53,12 @@
                 }
                 <p-button [icon]="vm.isListening ? 'pi pi-spin pi-spinner' : 'pi pi-microphone'" [rounded]="true"
                     [raised]="true"
-                    [severity]="vm.isListening ? 'primary' : (vm.isCorrect === true ? 'success' : (vm.isCorrect === false ? 'danger' : 'secondary'))"
+                    [severity]="vm.isListening ? 'primary' : (vm.state.isCorrect === true ? 'success' : (vm.state.isCorrect === false ? 'danger' : 'secondary'))"
                     styleClass="lr-mic-btn w-24 h-24 text-4xl" (onClick)="onStartListening()"
                     [disabled]="vm.isListening" />
 
                 <!-- Floating Next Button -->
-                @if (vm.isCorrect === true) {
+                @if (vm.state.isCorrect === true) {
                 <div class="absolute -right-24 top-1/2 -translate-y-1/2 animate-bounce-custom">
                     <p-button icon="pi pi-arrow-right" (onClick)="onNextWord()" [rounded]="true" severity="success"
                         styleClass="w-14 h-14 shadow-lg shadow-green-100" pTooltip="Następne" />
@@ -69,16 +69,16 @@
             <div class="flex flex-col items-center min-h-[4rem]">
                 @if (vm.isListening) {
                 <span class="text-primary-color font-black text-sm tracking-widest animate-pulse">SŁUCHAM...</span>
-                } @else if (vm.attemptCount >= 3 && vm.isCorrect === false) {
+                } @else if (vm.state.attemptCount >= 3 && vm.state.isCorrect === false) {
                 <span
                     class="text-muted-color font-black text-[10px] tracking-widest animate-bounce">AUTO-POMIJANIE...</span>
-                } @else if (vm.lastTranscript) {
+                } @else if (vm.state.lastTranscript) {
                 <div class="flex flex-col items-center animate-fade-in text-center px-4">
                     <span
                         class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-color mb-1">Usłyszano:</span>
-                    <span class="text-lg font-black leading-tight" [class.text-green-500]="vm.isCorrect === true"
-                        [class.text-red-500]="vm.isCorrect === false">
-                        "{{ vm.lastTranscript }}"
+                    <span class="text-lg font-black leading-tight" [class.text-green-500]="vm.state.isCorrect === true"
+                        [class.text-red-500]="vm.state.isCorrect === false">
+                        "{{ vm.state.lastTranscript }}"
                     </span>
                 </div>
                 }
@@ -93,12 +93,12 @@
                     [offIcon]="'pi pi-hand-pointer'"
                     styleClass="text-[10px] font-black rounded-full px-5 py-2 uppercase tracking-widest" />
 
-                @if (vm.isCorrect === false) {
+                @if (vm.state.isCorrect === false) {
                 <p-button label="POWTÓRZ" icon="pi pi-refresh" (onClick)="onStartListening()" [outlined]="true"
                     severity="secondary" styleClass="text-[10px] font-black uppercase tracking-widest px-4" />
                 }
 
-                @if (vm.isCorrect !== true) {
+                @if (vm.state.isCorrect !== true) {
                 <p-button label="POMIŃ" icon="pi pi-step-forward" (onClick)="onNextWord()" [text]="true"
                     severity="contrast" styleClass="text-[10px] font-black uppercase tracking-widest" />
                 }
@@ -112,7 +112,7 @@
             </div>
         </div>
 
-        @if (vm.isCorrect === true) {
+        @if (vm.state.isCorrect === true) {
         <div class="absolute inset-0 pointer-events-none animate-fade-in bg-green-500/5"></div>
         }
     </div>

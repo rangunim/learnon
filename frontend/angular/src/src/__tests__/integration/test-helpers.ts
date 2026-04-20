@@ -42,6 +42,6 @@ export async function clearAuth(page: Page): Promise<void> {
  * Waits for the app to become interactive after navigation.
  */
 export async function waitForApp(page: Page): Promise<void> {
-    await page.waitForSelector('app-root', { state: 'attached' });
+    await page.waitForSelector('learnon-mfe', { state: 'attached' });
     await page.waitForTimeout(500);
 }

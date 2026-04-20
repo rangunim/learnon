@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, ElementRef, effect } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
@@ -34,7 +33,6 @@ import { Stepper, StepList, Step } from 'primeng/stepper';
 })
 export class ExamPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly localstore = inject(ExamLocalStore);
 
   protected readonly rootViewModel = this.localstore.rootViewModel;
@@ -42,13 +40,35 @@ export class ExamPage implements OnInit {
   protected readonly summaryViewModel = this.localstore.summaryViewModel;
   protected readonly resultViewModel = this.localstore.resultViewModel;
 
-  ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.localstore.loadGame(id);
-      }
+  private readonly scrollAnchor = viewChild<ElementRef<HTMLElement>>('scrollAnchor');
+
+  constructor() {
+    effect(() => {
+      // Trigger scroll on step change
+      this.rootViewModel().state.currentStep;
+      // Trigger scroll on question change
+      this.questionViewModel().state.currentIndex;
+
+      this.scrollToTop();
     });
+  }
+
+  private scrollToTop(): void {
+    const el = this.scrollAnchor()?.nativeElement;
+    if (el) {
+      // Find the scrollable p-dialog-content
+      const dialogContent = el.closest('.p-dialog-content');
+      if (dialogContent) {
+        dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.localstore.loadGame(id);
+    }
   }
 
   protected handleForceSummary(): void {
@@ -81,6 +101,10 @@ export class ExamPage implements OnInit {
 
   protected handleBack(): void {
     this.localstore.prevStep();
+  }
+
+  protected handleNext(): void {
+    this.localstore.nextQuestion();
   }
 
   protected handleRestart(): void {

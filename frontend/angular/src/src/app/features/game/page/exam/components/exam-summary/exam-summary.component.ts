@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { SummaryViewModel } from '../../exam.localstore';
-import { WordPair } from '../../../../../chapter/model/chapter.model';
 
 @Component({
     selector: 'app-exam-summary',
@@ -27,9 +26,5 @@ export class ExamSummaryComponent {
 
     protected handleBack(): void {
         this.back.emit();
-    }
-
-    protected sourceWord(card: WordPair): string {
-        return this.viewModel().direction === 'toLang2' ? card.pl : card.eng;
     }
 }

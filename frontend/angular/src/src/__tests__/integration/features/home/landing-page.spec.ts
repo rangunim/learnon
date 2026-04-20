@@ -1,5 +1,5 @@
-import { test, expect } from './coverage.fixture';
-import { clearAuth, waitForApp } from './test-helpers';
+import { test, expect } from '../../coverage.fixture';
+import { clearAuth, waitForApp } from '../../test-helpers';
 
 test.describe('Landing Page', () => {
     test.beforeEach(async ({ page }) => {

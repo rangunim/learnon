@@ -1,14 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Signal } from '@angular/core';
 import { AuthStore } from './core/stores/auth.store';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
 
 @Component({
-  selector: 'app-root',
+  selector: 'learnon-mfe',
   imports: [MainLayoutComponent, AuthLayoutComponent],
   template: `
     <div id="learnon-mfe-root">
-      @if (authStore.isLoggedIn()) {
+      @if (isLoggedIn()) {
         <app-main-layout></app-main-layout>
       } @else {
         <app-auth-layout></app-auth-layout>
@@ -25,5 +25,8 @@ import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component'
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
-  protected readonly authStore = inject(AuthStore);
+  private readonly authStore = inject(AuthStore);
+
+  protected readonly isLoggedIn: Signal<boolean> = computed(() => this.authStore.isLoggedIn());
+
 }

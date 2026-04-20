@@ -16,8 +16,8 @@
         </div>
 
         <div class="flex gap-2 flex-shrink-0">
-            <p-button (onClick)="onOpenMarketplace()" [label]="'Marketplace'" [icon]="'pi pi-shopping-cart'"
-                [outlined]="true" [severity]="'info'" pTooltip="Przeglądaj publiczne zestawy" />
+            <p-button routerLink="marketplace" [label]="'Marketplace'" [icon]="'pi pi-shopping-cart'" [outlined]="true"
+                [severity]="'info'" pTooltip="Przeglądaj publiczne zestawy" />
 
             <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv,.xlsx,.xls" class="hidden" />
             <p-button (click)="onTriggerImport(fileInput)" [label]="'Importuj'" [icon]="'pi pi-upload'"
@@ -27,10 +27,7 @@
         </div>
     </div>
 
-    @if (vm.state.isMarketplaceVisible) {
-    <app-marketplace (onClose)="onCloseMarketplace()" (onImported)="onMarketplaceImported()">
-    </app-marketplace>
-    }
+
 
     @if (vm.state.isLoading) {
     <div class="flex justify-center items-center py-20">
@@ -65,3 +62,5 @@
     }
     }
 </div>
+
+<router-outlet></router-outlet>

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, effect } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, RouterModule } from '@angular/router';
 import { QuizLocalStore } from './quiz.localstore';
 
@@ -31,7 +30,6 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class QuizPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly localstore = inject(QuizLocalStore);
 
   protected readonly rootViewModel = this.localstore.rootViewModel;
@@ -52,14 +50,10 @@ export class QuizPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe((params: ParamMap) => {
-      const id = params.get('id');
-      if (id) {
-        this.localstore.loadGame(id);
-      }
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.localstore.loadGame(id);
+    }
   }
 
   protected handleSelectOption(optionId: string): void {

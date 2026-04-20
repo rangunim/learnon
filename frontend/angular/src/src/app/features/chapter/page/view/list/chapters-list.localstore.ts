@@ -7,7 +7,6 @@ import { MessageService } from 'primeng/api';
 export interface ChaptersListState {
     isLoading: boolean;
     searchQuery: string;
-    isMarketplaceVisible: boolean;
 }
 
 export interface ChaptersListViewModel {
@@ -23,8 +22,7 @@ export class ChaptersListLocalStore {
 
     private readonly _state = signal<ChaptersListState>({
         isLoading: false,
-        searchQuery: '',
-        isMarketplaceVisible: false
+        searchQuery: ''
     });
 
     public readonly viewModel = computed<ChaptersListViewModel>(() => {
@@ -50,13 +48,7 @@ export class ChaptersListLocalStore {
         this._state.update(s => ({ ...s, searchQuery: '' }));
     }
 
-    public openMarketplace(): void {
-        this._state.update(s => ({ ...s, isMarketplaceVisible: true }));
-    }
 
-    public closeMarketplace(): void {
-        this._state.update(s => ({ ...s, isMarketplaceVisible: false }));
-    }
 
     public loadChapters(): void {
         const user = this.authStore.user();

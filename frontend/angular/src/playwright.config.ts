@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-    testDir: './src/__tests__',
+    testDir: './src/__tests__/integration',
     fullyParallel: false,
     forbidOnly: !!process.env['CI'],
     retries: process.env['CI'] ? 2 : 0,
@@ -29,7 +29,7 @@ export default defineConfig({
             timeout: 10000
         },
         {
-            command: process.env['COVERAGE'] ? 'npm run start -- --configuration=coverage' : 'npm run start',
+            command: process.env['COVERAGE'] ? 'npm run start --configuration=coverage' : 'npm run start',
             port: 4200,
             reuseExistingServer: !process.env['CI'],
             timeout: 120000

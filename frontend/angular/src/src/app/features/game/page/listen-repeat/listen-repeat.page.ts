@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, effect, computed, untracked, Signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, OnInit, effect, computed, untracked } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ListenRepeatLocalStore, ListenRepeatViewModel } from './listen-repeat.localstore';
+import { ListenRepeatLocalStore } from './listen-repeat.localstore';
 import { SpeechService } from '../../../../core/services/speech.service';
 import { LrPlayComponent } from './components/lr-play/lr-play.component';
 import { LrResultComponent } from './components/lr-result/lr-result.component';
@@ -30,100 +29,66 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class ListenRepeatPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly store = inject(ListenRepeatLocalStore);
+  private readonly localstore = inject(ListenRepeatLocalStore);
   private readonly speechService = inject(SpeechService);
 
-  readonly viewModel = computed<ListenRepeatViewModel>(() => {
-    const baseVm = this.store.viewModel();
+  protected readonly rootViewModel = this.localstore.rootViewModel;
+  protected readonly playViewModel = computed(() => {
+    const playVm = this.localstore.playViewModel();
     const isListening = this.speechService.isListening();
-
-    if (baseVm.play) {
-      return {
-        ...baseVm,
-        play: {
-          ...baseVm.play,
-          isListening
-        }
-      };
-    }
-    return baseVm;
+    return {
+      ...playVm,
+      isListening
+    };
   });
 
-  constructor() {
-    const wordId = computed(() => this.viewModel().play?.currentWord?.id);
-    const isFinished = computed(() => this.viewModel().currentStep === 'RESULTS');
-    const isCorrect = computed(() => this.viewModel().play?.isCorrect ?? null);
-
-    effect((onCleanup) => {
-      const id = wordId();
-      const vm = this.viewModel();
-
-      if (!id || vm.currentStep !== 'PLAY' || isFinished() || isCorrect() !== null || !vm.play) return;
-
-      this.store.playAudio();
-
-      if (vm.play.autoListen) {
-        const timer = setTimeout(() => {
-          untracked(() => {
-            const currentVm = this.viewModel();
-            if (currentVm.play?.isCorrect === null && !this.speechService.isListening()) {
-              this.store.startListening();
-            }
-          });
-        }, 1500);
-        onCleanup(() => clearTimeout(timer));
-      }
-    });
-  }
+  protected readonly resultViewModel = this.localstore.resultViewModel;
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.store.handleLoadGame(id);
-      }
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.localstore.handleLoadGame(id);
+    }
   }
 
   protected handleEnter(): void {
-    const vm = this.viewModel();
-    if (vm.currentStep === 'RESULTS') return;
+    const root = this.rootViewModel();
+    const play = this.playViewModel();
+    if (root.state.currentStep === 'RESULTS') return;
 
-    if (vm.play?.isCorrect === true) {
-      this.nextWord();
-    } else if (!vm.play?.isListening) {
-      this.startListening();
+    if (play.state.isCorrect === true) {
+      this.handleNextWord();
+    } else if (!play.isListening) {
+      this.handleStartListening();
     }
   }
 
-  protected toggleMode(): void {
-    this.store.toggleMode();
+
+  protected handleToggleMode(): void {
+    this.localstore.toggleMode();
   }
 
-  protected nextWord(): void {
-    this.store.nextWord();
+  protected handleNextWord(): void {
+    this.localstore.nextWord();
   }
 
-  protected toggleAutoListen(): void {
-    this.store.toggleAutoListen();
+  protected handleToggleAutoListen(): void {
+    this.localstore.toggleAutoListen();
   }
 
-  protected toggleWord(): void {
-    this.store.toggleWord();
+  protected handleToggleWord(): void {
+    this.localstore.toggleWord();
   }
 
-  protected playAudio(): void {
-    this.store.playAudio();
+  protected handlePlayAudio(): void {
+    this.localstore.playAudio();
   }
 
-  protected startListening(): void {
-    this.store.startListening();
+  protected handleStartListening(): void {
+    this.localstore.startListening();
   }
 
-  protected restart(): void {
-    this.store.resetGame();
+  protected handleRestart(): void {
+    this.localstore.resetGame();
   }
 }

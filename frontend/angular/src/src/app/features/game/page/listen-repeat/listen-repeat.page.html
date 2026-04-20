@@ -1,12 +1,13 @@
-@let vm = viewModel();
+@let root = rootViewModel();
 <div class="lr-wrapper mx-auto pb-20" style="max-width: 48rem">
     <div class="flex items-center justify-between mb-6 px-4">
-        <p-button [routerLink]="['/chapters', vm.chapterId]" label="Wróć" icon="pi pi-arrow-left" [text]="true"
+        <p-button [routerLink]="['/chapters', root.chapterId]" label="Wróć" icon="pi pi-arrow-left" [text]="true"
             severity="secondary" size="small" />
 
         <div class="flex items-center gap-2">
-            @if (vm.currentStep === 'PLAY') {
-            <p-tag [value]="(vm.play?.currentIndex! + 1) + ' / ' + vm.totalCount" severity="info" [rounded]="true" />
+            @if (root.state.currentStep === 'PLAY') {
+            @let play = playViewModel();
+            <p-tag [value]="(play.state.currentIndex + 1) + ' / ' + root.totalCount" severity="info" [rounded]="true" />
             } @else {
             <p-tag value="Wyniki" severity="success" [rounded]="true" />
             }
@@ -17,44 +18,45 @@
         <div class="lr-heading flex justify-between items-start mb-8 p-2">
             <div>
                 <h1 class="text-3xl font-black text-surface-900 leading-tight">
-                    @switch (vm.currentStep) {
+                    @switch (root.state.currentStep) {
                     @case ('PLAY') { Wymowa }
                     @case ('RESULTS') { Wynik sesji }
                     }
                 </h1>
                 <p class="text-muted-color text-sm font-medium">
-                    @switch (vm.currentStep) {
+                    @switch (root.state.currentStep) {
                     @case ('PLAY') { Posłuchaj i powtórz do mikrofonu. }
                     @case ('RESULTS') { Gratulacje! Ukończyłeś sesję. }
                     }
                 </p>
             </div>
 
-            @if (vm.currentStep === 'PLAY') {
+            @if (root.state.currentStep === 'PLAY') {
             <div class="swap-action mt-1">
-                <p-button (onClick)="toggleMode()" icon="pi pi-sync" [rounded]="true" [text]="true" severity="secondary"
-                    pTooltip="Zamień kierunek" />
+                <p-button (onClick)="handleToggleMode()" icon="pi pi-sync" [rounded]="true" [text]="true"
+                    severity="secondary" pTooltip="Zamień kierunek" />
             </div>
             }
         </div>
 
-        @if (vm.isLoading) {
+        @if (root.state.isLoading) {
         <div class="flex justify-center items-center py-20">
             <p-progressspinner />
         </div>
-        } @else if (vm.totalCount === 0) {
+        } @else if (root.totalCount === 0) {
         <div
             class="text-center py-12 bg-surface-ground rounded-2xl border-2 border-dashed border-surface-border text-muted-color">
             <p class="font-bold">Brak fiszek w tym rozdziale.</p>
         </div>
         } @else {
-        @switch (vm.currentStep) {
+        @switch (root.state.currentStep) {
         @case ('PLAY') {
-        <app-lr-play [viewModel]="vm.play!" (nextWord)="nextWord()" (toggleAutoListen)="toggleAutoListen()"
-            (toggleWord)="toggleWord()" (playAudio)="playAudio()" (startListening)="startListening()" />
+        <app-lr-play [viewModel]="playViewModel()" (nextWord)="handleNextWord()"
+            (toggleAutoListen)="handleToggleAutoListen()" (toggleWord)="handleToggleWord()"
+            (playAudio)="handlePlayAudio()" (startListening)="handleStartListening()" />
         }
         @case ('RESULTS') {
-        <app-lr-result [viewModel]="vm.result!" (restart)="restart()" />
+        <app-lr-result [viewModel]="resultViewModel()" (restart)="handleRestart()" />
         }
         }
         }

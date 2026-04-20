@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, output, OnInit, viewChild, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, ElementRef } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -13,7 +14,6 @@ import { Select } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-    selector: 'app-marketplace',
     imports: [
         CommonModule,
         FormsModule,
@@ -35,8 +35,8 @@ export class MarketplacePage implements OnInit {
 
     protected readonly viewModel = this.localStore.viewModel;
 
-    readonly onClose = output<void>();
-    readonly onImported = output<void>();
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
 
     protected readonly searchInputRef = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
@@ -72,7 +72,6 @@ export class MarketplacePage implements OnInit {
 
     protected handleImport(chapter: Chapter): void {
         this.localStore.importChapter(chapter);
-        this.onImported.emit();
     }
 
     protected handlePreview(chapter: Chapter): void {
@@ -81,5 +80,9 @@ export class MarketplacePage implements OnInit {
 
     protected closePreview(): void {
         this.localStore.hidePreview();
+    }
+
+    protected closeDialog(): void {
+        this.router.navigate(['../'], { relativeTo: this.route });
     }
 }

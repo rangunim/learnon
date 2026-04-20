@@ -5,11 +5,10 @@ import { Button } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { ChapterCardComponent } from './components/chapter-card.component';
-import { MarketplacePage } from '../marketplace/marketplace.page';
 import { Chapter } from '../../../model/chapter.model';
 
 @Component({
-  imports: [RouterModule, ChapterCardComponent, Button, ProgressSpinner, InputText, MarketplacePage],
+  imports: [RouterModule, ChapterCardComponent, Button, ProgressSpinner, InputText],
   providers: [ChaptersListLocalStore],
   templateUrl: './chapters-list.page.html',
   styleUrl: './chapters-list.page.scss',
@@ -34,19 +33,6 @@ export class ChaptersListPage implements OnInit {
 
   protected onShareChapter(chapter: Chapter): void {
     this.localstore.shareChapter(chapter);
-  }
-
-  protected onOpenMarketplace(): void {
-    this.localstore.openMarketplace();
-  }
-
-  protected onCloseMarketplace(): void {
-    this.localstore.closeMarketplace();
-  }
-
-  protected onMarketplaceImported(): void {
-    this.localstore.loadChapters();
-    this.localstore.closeMarketplace();
   }
 
   protected onClearSearch(): void {
