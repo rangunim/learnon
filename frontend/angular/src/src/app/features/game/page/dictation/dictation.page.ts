@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, effect, untracked, DestroyRef, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Tag } from 'primeng/tag';
@@ -29,36 +28,31 @@ import { DictationResultComponent } from './components/dictation-result/dictatio
 })
 export class DictationPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly localstore = inject(DictationLocalStore);
 
   protected readonly rootViewModel = this.localstore.rootViewModel;
   protected readonly playViewModel = this.localstore.playViewModel;
   protected readonly resultViewModel = this.localstore.resultViewModel;
 
-  constructor() {
-    // Auto-play audio on new word
-    const currentIndex = computed(() => this.playViewModel().state.currentIndex);
-    const currentStep = computed(() => this.rootViewModel().state.currentStep);
-    effect(() => {
-      const index = currentIndex();
-      const stepValue = currentStep();
+  //constructor() {
+  // Auto-play audio on new word
+  //   const currentIndex = computed(() => this.playViewModel().state.currentIndex);
+  //    const currentStep = computed(() => this.rootViewModel().state.currentStep);
+  //  effect(() => {
+  //     const index = currentIndex();
+  //     const stepValue = currentStep();
 
-      if (stepValue === 'PLAY' && index !== undefined) {
-        untracked(() => this.localstore.playAudio());
-      }
-    });
-  }
+  //     if (stepValue === 'PLAY' && index !== undefined) {
+  //     untracked(() => this.localstore.playAudio());
+  //    }
+  // });
+  // }
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.localstore.handleLoadGame(id);
-      }
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.localstore.handleLoadGame(id);
+    }
   }
 
   protected handleInputChange(val: string): void {

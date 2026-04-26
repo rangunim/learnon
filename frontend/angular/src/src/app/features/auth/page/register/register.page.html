@@ -67,8 +67,8 @@
                 </div>
             </div>
 
-            <p-button type="submit" label="Zarejestruj się" [disabled]="vm.form.invalid || vm.state.isLoading"
-                [loading]="vm.state.isLoading" icon="pi pi-user-plus" fluid />
+            <p-button type="submit" label="Zarejestruj się" [disabled]="!vm.canSubmit" [loading]="vm.state.isLoading"
+                icon="pi pi-user-plus" fluid />
         </form>
     </p-card>
 </div>

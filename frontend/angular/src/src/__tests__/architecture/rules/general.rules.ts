@@ -1,9 +1,9 @@
 import { test, expect, describe } from 'vitest';
-import { FileConditionBuilder } from 'archunit';
+import { FileShouldCondition } from 'archunit';
 import { ProjectArchConfig, ArchGeneralRules } from '../architecture-config';
 
 
-export function defineGeneralArchRules(config: ProjectArchConfig, featuresFiles: FileConditionBuilder, appFiles: FileConditionBuilder) {
+export function defineGeneralArchRules(config: ProjectArchConfig, featuresFiles: FileShouldCondition, appFiles: FileShouldCondition) {
     const { patterns, rules } = config;
     const general = rules.general as ArchGeneralRules;
 
@@ -156,5 +156,23 @@ export function defineGeneralArchRules(config: ProjectArchConfig, featuresFiles:
 
             await expect(rule).toPassAsync();
         });
+    });
+
+    test.runIf(general.reactiveFormBridge)('LocalStores with reactive forms should bridge them with toSignal', async () => {
+        const rule = featuresFiles
+            .withName(patterns.localstore)
+            .should()
+            .adhereTo(
+                (file) => {
+                    const ownReactiveForm = /FormGroup|FormBuilder|NonNullableFormBuilder|\.group\(/.test(file.content);
+                    if (!ownReactiveForm) {
+                        return true;
+                    }
+                    return file.content.includes('toSignal');
+                },
+                'LocalStores with reactive forms must bridge from changes with toSignal'
+            );
+
+        await expect(rule).toPassAsync();
     });
 }

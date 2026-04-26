@@ -16,6 +16,7 @@ describe('ListenRepeatLocalStore', () => {
     let mockSpeechService: {
         speak: Mock;
         listen: Mock;
+        isListening: Mock;
     };
     let mockMessageService: {
         add: Mock;
@@ -27,7 +28,8 @@ describe('ListenRepeatLocalStore', () => {
         };
         mockSpeechService = {
             speak: vi.fn(),
-            listen: vi.fn()
+            listen: vi.fn(),
+            isListening: vi.fn()
         };
         mockMessageService = {
             add: vi.fn()
@@ -74,6 +76,7 @@ describe('ListenRepeatLocalStore', () => {
             words: [{ eng: 'apple', pl: 'jabłko' }]
         } as any;
         mockGameStore.loadGameData.mockReturnValue(of(mockChapter as Chapter));
+        mockSpeechService.isListening.mockReturnValue(false);
         localStore.handleLoadGame('1');
 
         localStore.checkTranscript('apple');
@@ -88,6 +91,7 @@ describe('ListenRepeatLocalStore', () => {
             words: [{ eng: 'apple', pl: 'jabłko' }]
         } as any;
         mockGameStore.loadGameData.mockReturnValue(of(mockChapter as Chapter));
+        mockSpeechService.isListening.mockReturnValue(false);
         localStore.handleLoadGame('1');
 
         localStore.checkTranscript('banana');
@@ -103,6 +107,7 @@ describe('ListenRepeatLocalStore', () => {
             words: [{ eng: 'apple', pl: 'jabłko' }]
         } as any;
         mockGameStore.loadGameData.mockReturnValue(of(mockChapter as Chapter));
+        mockSpeechService.isListening.mockReturnValue(false);
         localStore.handleLoadGame('1');
 
         localStore.playAudio();

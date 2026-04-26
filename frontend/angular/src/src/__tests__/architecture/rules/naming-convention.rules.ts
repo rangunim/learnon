@@ -1,9 +1,9 @@
 import { test, expect, describe } from 'vitest';
-import { FileConditionBuilder } from 'archunit';
+import { FileShouldCondition } from 'archunit';
 import { ProjectArchConfig, ArchNamingRules } from '../architecture-config';
 
 
-export function defineNamingArchRules(config: ProjectArchConfig, featuresFiles: FileConditionBuilder) {
+export function defineNamingArchRules(config: ProjectArchConfig, featuresFiles: FileShouldCondition) {
     const { patterns, rules } = config;
     const naming = rules.naming as ArchNamingRules;
 

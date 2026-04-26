@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, tap } from 'rxjs';
 import { AuthState, User } from './auth.store';
 import { environment } from '../../../environments/environment';
 
@@ -11,7 +11,11 @@ export class AuthStoreService {
     private readonly http = inject(HttpClient);
 
     handleLogin(state: AuthState, email: string, password: string): Observable<AuthState> {
-        return this.http.get<User[]>(`${API_URL}?email=${email}&password=${password}`).pipe(
+        const httpParams = new HttpParams()
+            .set('email', email)
+            .set('password', password);
+
+        return this.http.get<User[]>(API_URL, { params: httpParams }).pipe(
             map(users => {
                 if (users.length <= 0) {
                     throw new Error('Invalid credentials');
@@ -26,10 +30,8 @@ export class AuthStoreService {
 
     handleRegister(state: AuthState, userData: User): Observable<AuthState> {
         return this.http.post<User>(API_URL, userData).pipe(
-            map(user => {
-                localStorage.setItem('learnon_user', JSON.stringify(user));
-                return { user };
-            })
+            tap(user => localStorage.setItem('learnon_user', JSON.stringify(user))),
+            map(user => { return { user } })
         );
     }
 

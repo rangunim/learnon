@@ -59,7 +59,7 @@
                     <div class="flex gap-4 w-full sm:w-auto">
                         <p-button type="button" (click)="onReset()" label="Wyczyść" severity="secondary"
                             [outlined]="true" class="w-full sm:w-auto" styleClass="w-full" />
-                        <p-button type="submit" label="Zaktualizuj" icon="pi pi-check" [disabled]="vm.state.isLoading"
+                        <p-button type="submit" label="Zaktualizuj" icon="pi pi-check" [disabled]="!vm.canSubmit"
                             [loading]="vm.state.isLoading" class="w-full sm:w-auto" styleClass="btn-submit w-full" />
                     </div>
                 </div>

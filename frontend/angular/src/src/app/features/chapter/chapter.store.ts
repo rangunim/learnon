@@ -1,5 +1,5 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
-import { Observable, of, switchMap, tap } from 'rxjs';
+import { Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ChapterService } from './chapter.service';
 import { ChapterFileService } from './chapter-file.service';
 import { Chapter } from './model/chapter.model';
@@ -107,14 +107,14 @@ export class ChapterStore {
     public importChapter(file: File): Observable<Chapter> {
         const userId = this.authStore.user()?.id;
         if (!userId) {
-            throw new Error('User not authenticated');
+            return throwError(() => new Error('User not authenticated'));
         }
 
         return this.chapterFileService.parseFile(file).pipe(
             switchMap(words => {
                 const chapterName = file.name.split('.')[0] || 'Importowany Rozdział';
                 const request: ChapterCreateRequest = {
-                    userId,
+                    userId: userId,
                     name: chapterName,
                     description: `Zaimportowano z pliku: ${file.name}`,
                     lang1: 'Polski',
@@ -128,19 +128,19 @@ export class ChapterStore {
         );
     }
 
-    public exportChapter(chapter: Chapter, format: 'csv' | 'xlsx'): void {
-        this.chapterFileService.exportChapter(chapter, format);
+    public exportChapter(chapter: Chapter, format: 'csv' | 'xlsx'): Observable<void> {
+        return this.chapterFileService.exportChapter(chapter, format);
     }
 
 
     public importFromPublic(chapter: Chapter): Observable<Chapter> {
         const userId = this.authStore.user()?.id;
         if (!userId) {
-            throw new Error('User not authenticated');
+            return throwError(() => new Error('User not authenticated'));
         }
 
         const request: ChapterCreateRequest = {
-            userId,
+            userId: userId,
             name: chapter.name,
             description: chapter.description,
             lang1: chapter.lang1,

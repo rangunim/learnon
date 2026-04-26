@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, effect, computed, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ListenRepeatLocalStore } from './listen-repeat.localstore';
-import { SpeechService } from '../../../../core/services/speech.service';
 import { LrPlayComponent } from './components/lr-play/lr-play.component';
 import { LrResultComponent } from './components/lr-result/lr-result.component';
 import { Button } from 'primeng/button';
@@ -30,17 +29,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export class ListenRepeatPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly localstore = inject(ListenRepeatLocalStore);
-  private readonly speechService = inject(SpeechService);
 
   protected readonly rootViewModel = this.localstore.rootViewModel;
-  protected readonly playViewModel = computed(() => {
-    const playVm = this.localstore.playViewModel();
-    const isListening = this.speechService.isListening();
-    return {
-      ...playVm,
-      isListening
-    };
-  });
+  protected readonly playViewModel = this.localstore.playViewModel;
+
+  /* computed(() => {
+     const playVm = this.localstore.playViewModel();
+     const isListening = this.speechService.isListening();
+     return {
+       ...playVm,
+       isListening
+     };
+   });*/
 
   protected readonly resultViewModel = this.localstore.resultViewModel;
 

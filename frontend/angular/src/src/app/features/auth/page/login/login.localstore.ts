@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthStore } from '../../../../core/stores/auth.store';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -16,6 +17,8 @@ export interface LoginState {
 export interface LoginViewModel {
     state: LoginState;
     form: FormGroup;
+    isValid: boolean;
+    canSubmit: boolean;
 }
 
 @Injectable()
@@ -29,6 +32,14 @@ export class LoginLocalStore {
         password: ['', Validators.required]
     });
 
+    private readonly _formChanges = toSignal(this._loginForm.valueChanges, {
+        initialValue: this._loginForm.getRawValue()
+    });
+
+    private readonly _formStatus = toSignal(this._loginForm.statusChanges, {
+        initialValue: this._loginForm.status
+    });
+
     private readonly _state = signal<LoginState>({
         isLoading: false,
         errorMessage: null
@@ -36,9 +47,14 @@ export class LoginLocalStore {
 
     public readonly viewModel = computed<LoginViewModel>(() => {
         const state = this._state();
+        const status = this._formStatus();
+        this._formChanges();
+
         return {
             state: state,
-            form: this._loginForm
+            form: this._loginForm,
+            isValid: status === 'VALID',
+            canSubmit: status === 'VALID' && !state.isLoading
         };
     });
 

@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthStore, User } from '../../../../core/stores/auth.store';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -11,6 +12,8 @@ export interface RegisterState {
 export interface RegisterViewModel {
     state: RegisterState;
     form: FormGroup;
+    isValid: boolean;
+    canSubmit: boolean;
 }
 
 @Injectable()
@@ -29,6 +32,14 @@ export class RegisterLocalStore {
         termsAccepted: [false, Validators.requiredTrue]
     });
 
+    private readonly _formChanges = toSignal(this._registerForm.valueChanges, {
+        initialValue: this._registerForm.getRawValue()
+    });
+
+    private readonly _formStatus = toSignal(this._registerForm.statusChanges, {
+        initialValue: this._registerForm.status
+    });
+
     private readonly _state = signal<RegisterState>({
         isLoading: false,
         errorMessage: null
@@ -36,9 +47,15 @@ export class RegisterLocalStore {
 
     public readonly viewModel = computed<RegisterViewModel>(() => {
         const state = this._state();
+        const status = this._formStatus();
+        this._formChanges();
+
         return {
             state: state,
-            form: this._registerForm
+            form: this._registerForm,
+            isValid: status === 'VALID',
+            canSubmit: status === 'VALID' && !state.isLoading
+
         };
     });
 

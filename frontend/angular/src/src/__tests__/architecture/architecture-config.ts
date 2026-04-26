@@ -34,6 +34,7 @@ export interface ArchGeneralRules {
     publicViewModels: boolean;
     privateFormProperties: boolean;
     onlyPagesInRoutes: boolean;
+    reactiveFormBridge: boolean;
 }
 
 export interface ArchNamingRules {
@@ -143,7 +144,8 @@ export class ArchitectureConfigBuilder {
                 privateStateSignals: true,
                 publicViewModels: true,
                 privateFormProperties: true,
-                onlyPagesInRoutes: true
+                onlyPagesInRoutes: true,
+                reactiveFormBridge: true
             },
             naming: <ArchNamingRules>{
                 localStoreSuffix: true,

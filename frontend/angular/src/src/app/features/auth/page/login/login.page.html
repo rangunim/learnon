@@ -24,8 +24,8 @@
                 <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" fluid />
             </div>
 
-            <p-button type="submit" label="Zaloguj się" [disabled]="vm.form.invalid || vm.state.isLoading"
-                [loading]="vm.state.isLoading" icon="pi pi-sign-in" fluid />
+            <p-button type="submit" label="Zaloguj się" [disabled]="!vm.canSubmit" [loading]="vm.state.isLoading"
+                icon="pi pi-sign-in" fluid />
         </form>
     </p-card>
 </div>

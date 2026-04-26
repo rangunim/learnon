@@ -1,8 +1,8 @@
 import { test, expect, describe } from 'vitest';
-import { CheckOptions, FileConditionBuilder } from 'archunit';
+import { CheckOptions, FileShouldCondition } from 'archunit';
 import { ProjectArchConfig, ArchLegacyRules } from '../architecture-config';
 
-export function defineLegacyGuardArchRules(config: ProjectArchConfig, featuresFiles: FileConditionBuilder) {
+export function defineLegacyGuardArchRules(config: ProjectArchConfig, featuresFiles: FileShouldCondition) {
     const { patterns, rules } = config;
     const legacyGuard = rules.legacyGuard as ArchLegacyRules;
 

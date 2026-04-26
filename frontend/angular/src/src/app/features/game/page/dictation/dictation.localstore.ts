@@ -176,6 +176,7 @@ export class DictationLocalStore {
                     isLoading: false,
                     currentStep: 'PLAY'
                 }));
+                this.autoplayCurrentWord();
             },
             error: () => this._root.update(r => ({ ...r, isLoading: false }))
         });
@@ -292,6 +293,7 @@ export class DictationLocalStore {
             this._play.update(play => ({ ...play, ...commonReset }));
         } else {
             this._play.update(play => ({ ...play, ...commonReset, currentIndex: nextIndex }));
+            this.autoplayCurrentWord();
         }
     }
 
@@ -307,6 +309,7 @@ export class DictationLocalStore {
 
     public prevStep(): void {
         if (this._root().currentStep === 'PLAY') {
+            const previousIndex: number = this._play().currentIndex;
             this._play.update(p => {
                 if (p.currentIndex <= 0) {
                     return p;
@@ -323,6 +326,9 @@ export class DictationLocalStore {
                     wasHintUsed: false
                 };
             });
+            if (previousIndex > 0) {
+                this.autoplayCurrentWord();
+            }
         }
     }
 
@@ -333,6 +339,13 @@ export class DictationLocalStore {
         });
         this._play.set(initialPlay);
         this._result.set(initialResult);
+        this.autoplayCurrentWord();
+    }
+
+    private autoplayCurrentWord(): void {
+        if (this._root().currentStep === 'PLAY') {
+            this.playAudio();
+        }
     }
 }
 

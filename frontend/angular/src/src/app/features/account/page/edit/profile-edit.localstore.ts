@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthStore, User } from '../../../../core/stores/auth.store';
@@ -14,6 +15,7 @@ export interface ProfileEditViewModel {
     state: ProfileEditState;
     user: User | null;
     form: FormGroup;
+    canSubmit: boolean;
 }
 
 @Injectable()
@@ -30,6 +32,14 @@ export class ProfileEditLocalStore {
         newPassword: ['']
     });
 
+    private readonly _formChanges = toSignal(this._editForm.valueChanges, {
+        initialValue: this._editForm.getRawValue()
+    });
+
+    private readonly _formStatus = toSignal(this._editForm.statusChanges, {
+        initialValue: this._editForm.status
+    });
+
     private readonly _state = signal<ProfileEditState>({
         isLoading: false,
         avatarPreview: this.authStore.user()?.avatarUrl || null
@@ -37,10 +47,19 @@ export class ProfileEditLocalStore {
 
     public readonly viewModel = computed<ProfileEditViewModel>(() => {
         const state = this._state();
+        const user = this.authStore.user();
+        const formChanges = this._formChanges();
+        const formStatus = this._formStatus();
+
+        const hasPasswordChange: boolean = formChanges?.newPassword?.trim() !== user?.password?.trim();
+        const hasAvatarChange: boolean = state.avatarPreview !== (user?.avatarUrl || null);
         return {
             state: state,
-            user: this.authStore.user(),
-            form: this._editForm
+            user: user,
+            form: this._editForm,
+            canSubmit: formStatus === 'VALID'
+                && !state.isLoading
+                && (hasPasswordChange || hasAvatarChange)
         };
     });
 

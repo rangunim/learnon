@@ -96,7 +96,8 @@ export class ListenRepeatLocalStore {
         const root = this._root();
         const play = this._play();
         const words = root.words;
-        const totalCount = words.length;
+        const totalCount: number = words.length;
+        const isListening: boolean = this.speechService.isListening();
 
         const currentWord = words[play.currentIndex] || null;
         const targetText = currentWord ? (root.isSwapped ? currentWord.pl : currentWord.eng) : '';
@@ -106,10 +107,12 @@ export class ListenRepeatLocalStore {
             targetText,
             targetLangCode: root.isSwapped ? 'pl-PL' : 'en-US',
             progressPercent: totalCount > 0 ? (play.currentIndex / totalCount) * 100 : 0,
-            isListening: false, // Updated in the page component
+            isListening: isListening,
             currentWord,
             autoListen: root.autoListen,
-            currentSourceLang: root.isSwapped ? root.chapter?.lang1 || 'Polski' : root.chapter?.lang2 || 'Angielski'
+            currentSourceLang: root.isSwapped
+                ? root.chapter?.lang1 || 'Polski'
+                : root.chapter?.lang2 || 'Angielski'
         };
     });
 

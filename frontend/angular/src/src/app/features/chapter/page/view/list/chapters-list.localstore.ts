@@ -93,12 +93,30 @@ export class ChaptersListLocalStore {
     }
 
     public onExport(chapter: Chapter, format: 'csv' | 'xlsx'): void {
-        this.chapterStore.exportChapter(chapter, format);
         this.messageService.add({
             severity: 'info',
             summary: 'Eksportowanie',
             detail: 'Przygotowywanie pliku do pobrania...',
             life: 2000
+        });
+
+        this.chapterStore.exportChapter(chapter, format).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Eksportowano',
+                    detail: `Rozdział "${chapter.name}" został wyeksportowany.`,
+                    life: 3000
+                });
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Błąd eksportu',
+                    detail: err.message || 'Wystąpił problem podczas eksportowania rozdziału.',
+                    life: 5000
+                });
+            }
         });
     }
 

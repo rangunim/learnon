@@ -1,9 +1,9 @@
 import { test, expect, describe } from 'vitest';
-import { FileConditionBuilder } from 'archunit';
+import { FileShouldCondition } from 'archunit';
 import { ProjectArchConfig, ArchLayerRules } from '../architecture-config';
 
 
-export function defineLayerCommunicationArchRules(config: ProjectArchConfig, featuresFiles: FileConditionBuilder, coreFiles: FileConditionBuilder) {
+export function defineLayerCommunicationArchRules(config: ProjectArchConfig, featuresFiles: FileShouldCondition, coreFiles: FileShouldCondition) {
     const { paths, patterns, rules } = config;
     const layer = rules.layerCommunication as ArchLayerRules;
 
